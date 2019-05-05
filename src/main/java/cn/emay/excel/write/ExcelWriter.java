@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -16,11 +15,13 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import cn.emay.excel.common.ExcelSheet;
 import cn.emay.excel.common.ExcelVersion;
+import cn.emay.excel.schema.base.SheetSchema;
 import cn.emay.excel.write.handler.SheetWriteHandler;
-import cn.emay.excel.write.handler.impl.DataWriter;
-import cn.emay.excel.write.handler.impl.SheetWriteBySchemaHandler;
+import cn.emay.excel.write.handler.impl.SheetWriteHandlerForSchema;
+import cn.emay.excel.write.writer.DataWriter;
+import cn.emay.excel.write.writer.DataWriterByCustomSchema;
+import cn.emay.excel.write.writer.impl.DataWriterWithList;
 
 /**
  * Excel写
@@ -33,7 +34,7 @@ public class ExcelWriter {
 	/**
 	 * 默认缓存数据数量
 	 */
-	private final static int DEFAULT_CACHE_NUM = 100;
+	public final static int DEFAULT_CACHE_NUM = 1000;
 
 	/**
 	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
@@ -43,17 +44,108 @@ public class ExcelWriter {
 	 * @param datas
 	 *            数据集,按照顺序写入
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void writeExcel(String excelAbsolutePath, List<?>... datas) {
-		if (datas == null || datas.length == 0) {
-			throw new IllegalArgumentException("datas is null or empty");
+	public static <D> void write(String excelAbsolutePath, List<D> datas) {
+		if (datas == null || datas.size() == 0) {
+			throw new IllegalArgumentException("datas is null");
 		}
-		NormalData<?>[] datawrite = new NormalData<?>[datas.length];
-		for (int i = 0; i < datas.length; i++) {
-			List<?> data = datas[i];
-			datawrite[i] = new NormalData(data);
+		@SuppressWarnings("unchecked")
+		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
+		write(excelAbsolutePath, new DataWriterWithList<D>(datas,dataClass));
+	}
+
+	/**
+	 * 把Excel写入输出流<br/>
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param datas
+	 *            写入的数据集
+	 */
+	public static <D> void write(OutputStream os, ExcelVersion version, List<D> datas) {
+		if (datas == null || datas.size() == 0) {
+			throw new IllegalArgumentException("datas is null");
 		}
-		writeExcel(excelAbsolutePath, datawrite);
+		@SuppressWarnings("unchecked")
+		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
+		write(os, version, new DataWriterWithList<D>(datas,dataClass));
+	}
+	
+	/**
+	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
+	 * 
+	 * @param excelabsolutePath
+	 *            Excel写入的全路径
+	 * @param datas
+	 *            数据集,按照顺序写入
+	 */
+	public static <D> void write(String excelAbsolutePath, DataWriter<D> datas) {
+		if (datas == null) {
+			throw new IllegalArgumentException("datas is null");
+		}
+		write(excelAbsolutePath, new DataWriterByCustomSchema<D>() {
+
+			@Override
+			public D getData(int rowIndex) {
+				return datas.getData(rowIndex);
+			}
+
+			@Override
+			public boolean hasData(int rowIndex) {
+				return datas.hasData(rowIndex);
+			}
+
+			@Override
+			public Class<D> getDataClass() {
+				return datas.getDataClass();
+			}
+
+			@Override
+			public SheetSchema<D> getSheetSchema() {
+				return new SheetSchema<D>(datas.getDataClass());
+			}
+			
+		});
+	}
+
+	/**
+	 * 把Excel写入输出流<br/>
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param datas
+	 *            写入的数据集
+	 */
+	public static <D> void write(OutputStream os, ExcelVersion version, DataWriter<D> datas) {
+		if (datas == null) {
+			throw new IllegalArgumentException("datas is null");
+		}
+		write(os, version, new DataWriterByCustomSchema<D>() {
+
+			@Override
+			public D getData(int rowIndex) {
+				return datas.getData(rowIndex);
+			}
+
+			@Override
+			public boolean hasData(int rowIndex) {
+				return datas.hasData(rowIndex);
+			}
+
+			@Override
+			public Class<D> getDataClass() {
+				return datas.getDataClass();
+			}
+
+			@Override
+			public SheetSchema<D> getSheetSchema() {
+				return new SheetSchema<D>(datas.getDataClass());
+			}
+			
+		});
 	}
 
 	/**
@@ -61,30 +153,27 @@ public class ExcelWriter {
 	 * 
 	 * @param excelabsolutePath
 	 *            Excel写入的全路径
-	 * @param datas
-	 *            数据集处理器,按照顺序写入[处理器实例不可复用]
+	 * @param dataWriterByCustomSchema
+	 *            数据来源集合，每一个数据来源写入一个sheet
 	 */
-	public static void writeExcel(String excelAbsolutePath, DataWriter<?>... datas) {
-		if (datas == null || datas.length == 0) {
-			throw new IllegalArgumentException("datas is null or empty");
-		}
-		SheetWriteHandler[] handlers = new SheetWriteHandler[datas.length];
-		int cacheNumber = 0;
-		for (int i = 0; i < datas.length; i++) {
-			DataWriter<?> data = datas[i];
-			if (data.getShemaClass() == null) {
-				throw new IllegalArgumentException("schemaClass is null");
-			}
-			if (!data.getShemaClass().isAnnotationPresent(ExcelSheet.class)) {
-				throw new IllegalArgumentException("schemaClass[" + data.getShemaClass().getName() + "] is not has Annotation : " + ExcelSheet.class.getName());
-			}
-			ExcelSheet schema = data.getShemaClass().getAnnotation(ExcelSheet.class);
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			SheetWriteHandler handler = new SheetWriteBySchemaHandler(data);
-			handlers[i] = handler;
-			cacheNumber = cacheNumber > schema.cacheNumber() ? cacheNumber : schema.cacheNumber();
-		}
-		writeExcel(excelAbsolutePath, cacheNumber, handlers);
+	public static <D> void write(String excelAbsolutePath, DataWriterByCustomSchema<D> dataWriterByCustomSchema) {
+		SheetWriteHandler handler = new SheetWriteHandlerForSchema<D>(dataWriterByCustomSchema.getSheetSchema(), dataWriterByCustomSchema);
+		write(excelAbsolutePath, dataWriterByCustomSchema.getSheetSchema().getSheetSchemaParams().getCacheNumber(), handler);
+	}
+
+	/**
+	 * 把Excel写入输出流<br/>
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param dataWriterByCustomSchema
+	 *            数据来源集合，每一个数据来源写入一个sheet
+	 */
+	public static <D> void write(OutputStream os, ExcelVersion version, DataWriterByCustomSchema<D> dataWriterByCustomSchema) {
+		SheetWriteHandler handler = new SheetWriteHandlerForSchema<D>(dataWriterByCustomSchema.getSheetSchema(), dataWriterByCustomSchema);
+		write(os, version, dataWriterByCustomSchema.getSheetSchema().getSheetSchemaParams().getCacheNumber(), handler);
 	}
 
 	/**
@@ -95,8 +184,8 @@ public class ExcelWriter {
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	public static void writeExcel(String excelAbsolutePath, SheetWriteHandler... handlers) {
-		writeExcel(excelAbsolutePath, 1000, handlers);
+	public static void write(String excelAbsolutePath, SheetWriteHandler... handlers) {
+		write(excelAbsolutePath, DEFAULT_CACHE_NUM, handlers);
 	}
 
 	/**
@@ -109,8 +198,7 @@ public class ExcelWriter {
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	public static void writeExcel(String excelAbsolutePath, int cacheNumber, SheetWriteHandler... handlers) {
-		boolean error = false;
+	public static void write(String excelAbsolutePath, int cacheNumber, SheetWriteHandler... handlers) {
 		if (excelAbsolutePath == null) {
 			throw new IllegalArgumentException("excelAbsolutePath is null");
 		}
@@ -126,17 +214,15 @@ public class ExcelWriter {
 		if (file.exists()) {
 			throw new IllegalArgumentException("excelAbsolutePath[" + excelAbsolutePath + "]  is exists");
 		}
-		if (file.getParentFile().exists()) {
-			if (!file.getParentFile().isDirectory()) {
-				throw new IllegalArgumentException("excelAbsolutePath's parent file[" + file.getParentFile().getAbsolutePath() + "]  is not a dir");
-			}
-		} else {
-			file.getParentFile().mkdirs();
-		}
+		boolean error = false;
 		FileOutputStream fos = null;
+		File parent = file.getParentFile();
 		try {
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
 			fos = new FileOutputStream(excelAbsolutePath);
-			writeExcel(fos, version, cacheNumber, handlers);
+			write(fos, version, cacheNumber, handlers);
 		} catch (Exception e) {
 			error = true;
 			throw new IllegalArgumentException(e);
@@ -148,7 +234,8 @@ public class ExcelWriter {
 					throw new IllegalArgumentException(e);
 				} finally {
 					if (error) {
-						new File(excelAbsolutePath).delete();
+						file.delete();
+						parent.delete();
 					}
 				}
 			}
@@ -162,67 +249,11 @@ public class ExcelWriter {
 	 *            输出流
 	 * @param version
 	 *            版本
-	 * @param datas
-	 *            写入的数据集[多sheet],按照顺序写入
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void writeExcel(OutputStream os, ExcelVersion version, List<?>... datas) {
-		if (datas == null || datas.length == 0) {
-			throw new IllegalArgumentException("datas is null");
-		}
-		NormalData<?>[] datawrite = new NormalData<?>[datas.length];
-		for (int i = 0; i < datas.length; i++) {
-			List<?> data = datas[i];
-			datawrite[i] = new NormalData(data);
-		}
-		writeExcel(os, version, datawrite);
-	}
-
-	/**
-	 * 把Excel写入输出流<br/>
-	 * 
-	 * @param os
-	 *            输出流
-	 * @param version
-	 *            版本
-	 * @param datas
-	 *            写入的数据集处理器,按照顺序写入[处理器实例不可复用]
-	 */
-	public static void writeExcel(OutputStream os, ExcelVersion version, DataWriter<?>... datas) {
-		if (datas == null || datas.length == 0) {
-			throw new IllegalArgumentException("datas is null");
-		}
-		int cacheNumber = 0;
-		SheetWriteHandler[] handlers = new SheetWriteHandler[datas.length];
-		for (int i = 0; i < datas.length; i++) {
-			DataWriter<?> data = datas[i];
-			if (data.getShemaClass() == null) {
-				throw new IllegalArgumentException("schemaClass is null");
-			}
-			if (!data.getShemaClass().isAnnotationPresent(ExcelSheet.class)) {
-				throw new IllegalArgumentException("schemaClass[" + data.getShemaClass().getName() + "] is not has Annotation : " + ExcelSheet.class.getName());
-			}
-			ExcelSheet schema = data.getShemaClass().getAnnotation(ExcelSheet.class);
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			SheetWriteHandler handler = new SheetWriteBySchemaHandler(data);
-			handlers[i] = handler;
-			cacheNumber = cacheNumber > schema.cacheNumber() ? cacheNumber : schema.cacheNumber();
-		}
-		writeExcel(os, version, cacheNumber, handlers);
-	}
-
-	/**
-	 * 把Excel写入输出流<br/>
-	 * 
-	 * @param os
-	 *            输出流
-	 * @param version
-	 *            版本
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	public static void writeExcel(OutputStream os, ExcelVersion version, SheetWriteHandler... handlers) {
-		writeExcel(os, version, 1000, handlers);
+	public static void write(OutputStream os, ExcelVersion version, SheetWriteHandler... handlers) {
+		write(os, version, DEFAULT_CACHE_NUM, handlers);
 	}
 
 	/**
@@ -237,7 +268,7 @@ public class ExcelWriter {
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	public static void writeExcel(OutputStream os, ExcelVersion version, int cacheNumber, SheetWriteHandler... handlers) {
+	private static void write(OutputStream os, ExcelVersion version, int cacheNumber, SheetWriteHandler... handlers) {
 		if (os == null) {
 			throw new IllegalArgumentException("OutputStream is null");
 		}
@@ -251,9 +282,22 @@ public class ExcelWriter {
 			throw new IllegalArgumentException("handlers is empty");
 		}
 		Workbook workbook = null;
+		switch (version) {
+		case XLS:
+			workbook = new HSSFWorkbook();
+			break;
+		case XLSX:
+			if (cacheNumber >= DEFAULT_CACHE_NUM) {
+				workbook = new SXSSFWorkbook(cacheNumber);
+			} else {
+				workbook = new XSSFWorkbook();
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("version is error");
+		}
 		try {
-			workbook = createWorkbook(version, cacheNumber);
-			writeData(workbook, handlers);
+			write(workbook, handlers);
 			workbook.write(os);
 			os.flush();
 		} catch (IOException e) {
@@ -269,41 +313,7 @@ public class ExcelWriter {
 					throw new IllegalArgumentException(e);
 				}
 			}
-			try {
-				os.close();
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e);
-			}
 		}
-	}
-
-	/**
-	 * 构建WorkBook
-	 * 
-	 * @param version
-	 *            版本
-	 * @param cacheNumber
-	 *            缓存条数
-	 * @return
-	 */
-	private static Workbook createWorkbook(ExcelVersion version, int cacheNumber) {
-		Workbook workbook = null;
-		switch (version) {
-		case XLS:
-			workbook = new HSSFWorkbook();
-			break;
-		case XLSX:
-			if (cacheNumber >= DEFAULT_CACHE_NUM) {
-				workbook = new SXSSFWorkbook(cacheNumber);
-			} else {
-				workbook = new XSSFWorkbook();
-			}
-			break;
-
-		default:
-			throw new IllegalArgumentException("version is error");
-		}
-		return workbook;
 	}
 
 	/**
@@ -315,12 +325,18 @@ public class ExcelWriter {
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 * @return
 	 */
-	private static Workbook writeData(Workbook workbook, SheetWriteHandler... handlers) {
-		for (int i = 0; i < handlers.length; i++) {
-			SheetWriteHandler handler = handlers[i];
+	public static void write(Workbook workbook, SheetWriteHandler... handlers) {
+		if (workbook == null) {
+			throw new IllegalArgumentException("workbook is null");
+		}
+		if (handlers == null || handlers.length == 0) {
+			throw new IllegalArgumentException("handlers is null or empty");
+		}
+		for (int index = 0; index < handlers.length; index++) {
+			SheetWriteHandler handler = handlers[index];
 			Sheet sheet = null;
 			if (handler == null) {
-				sheet = workbook.createSheet();
+				workbook.createSheet();
 				continue;
 			}
 			if (handler.getSheetName() != null && !"".equals(handler.getSheetName())) {
@@ -331,51 +347,50 @@ public class ExcelWriter {
 			if (sheet.getClass().isAssignableFrom(SXSSFSheet.class)) {
 				((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
 			}
-			handler.begin(i);
-			int rowIndex = 0;
-			while (handler.hasRow(rowIndex)) {
-				Row row = sheet.createRow(rowIndex);
-				handler.beginRow(rowIndex);
-				for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
-					Cell cell = row.createCell(columnIndex);
-					CellStyle style = cell.getSheet().getWorkbook().createCellStyle();
-					cell.setCellStyle(style);
-					handler.writeCell(cell, rowIndex, columnIndex);
-				}
-				handler.endRow(rowIndex);
-				rowIndex++;
-			}
-			handler.end(i);
+			write(index, sheet, handler);
 		}
-		return workbook;
 	}
 
-}
-
-class NormalData<R extends Object> implements DataWriter<R> {
-
-	private List<R> datas;
-	int size;
-
-	public NormalData(List<R> datas) {
-		this.datas = datas;
-		size = datas.size();
-	}
-
-	@Override
-	public R getData(int rowIndex) {
-		return datas.get(rowIndex);
-	}
-
-	@Override
-	public boolean hasData(int rowIndex) {
-		return rowIndex < size;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<R> getShemaClass() {
-		return (Class<R>) datas.get(0).getClass();
+	/**
+	 * 写入Sheet
+	 * 
+	 * @param sheetIndex
+	 *            sheet 序号
+	 * @param sheet
+	 *            表
+	 * @param handler
+	 *            处理器
+	 */
+	public static void write(int sheetIndex, Sheet sheet, SheetWriteHandler handler) {
+		if (sheetIndex < 0) {
+			throw new IllegalArgumentException("sheetIndex must bigger than -1");
+		}
+		if (sheet == null) {
+			throw new IllegalArgumentException("sheet is null");
+		}
+		if (handler == null) {
+			throw new IllegalArgumentException("handler is null");
+		}
+		handler.begin(sheetIndex);
+		int rowIndex = 0;
+		while (handler.hasRow(rowIndex)) {
+			Row row = sheet.getRow(rowIndex);
+			if (row == null) {
+				row = sheet.createRow(rowIndex);
+			}
+			handler.beginRow(rowIndex);
+			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
+				Cell cell = row.getCell(columnIndex);
+				if (cell == null) {
+					cell = row.createCell(columnIndex);
+				}
+				cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
+				handler.writeCell(cell, rowIndex, columnIndex);
+			}
+			handler.endRow(rowIndex);
+			rowIndex++;
+		}
+		handler.end(sheetIndex);
 	}
 
 }

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.write.ExcelWriter;
 import cn.emay.excel.write.handler.SheetWriteHandler;
-import cn.emay.excel.write.handler.impl.DataWriter;
+import cn.emay.excel.write.writer.DataWriter;
 
 /**
  * Excel针对Servlet的支持
@@ -39,9 +39,15 @@ public class ExcelServletSupport {
 				throw new IllegalArgumentException("excel handlers is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeExcel(response.getOutputStream(), version, handlers);
+			ExcelWriter.write(response.getOutputStream(), version, handlers);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
+		} finally {
+			try {
+				response.getOutputStream().close();
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 	}
 
@@ -57,15 +63,21 @@ public class ExcelServletSupport {
 	 * @param datas
 	 *            写Sheet的数据处理器（数据要实现@ExcelSheet、@ExcelColumn注解）
 	 */
-	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, DataWriter<?>... datas) {
+	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, DataWriter<?> datas) {
 		try {
-			if (datas == null || datas.length == 0) {
+			if (datas == null) {
 				throw new IllegalArgumentException("excel datas is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeExcel(response.getOutputStream(), version, datas);
+			ExcelWriter.write(response.getOutputStream(), version, datas);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
+		} finally {
+			try {
+				response.getOutputStream().close();
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 	}
 
@@ -81,15 +93,21 @@ public class ExcelServletSupport {
 	 * @param datas
 	 *            写Sheet的数据（数据要实现@ExcelSheet、@ExcelColumn注解）
 	 */
-	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, List<?>... datas) {
+	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, List<?> datas) {
 		try {
-			if (datas == null || datas.length == 0) {
+			if (datas == null) {
 				throw new IllegalArgumentException("excel datas is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeExcel(response.getOutputStream(), version, datas);
+			ExcelWriter.write(response.getOutputStream(), version, datas);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
+		} finally {
+			try {
+				response.getOutputStream().close();
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 	}
 

@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.Cell;
 public interface SheetWriteHandler {
 
 	/**
-	 * 获取表名
+	 * 写入的表名
 	 * 
 	 * @return
 	 */

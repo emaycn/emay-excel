@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.emay.excel.common.Person;
-import cn.emay.excel.read.handler.relize.DataReader;
+import cn.emay.excel.read.reader.DataReader;
 
 public class PersonDataReader implements DataReader<Person> {
-	
+
 	private List<Person> list = new ArrayList<>();
 
 	@Override
@@ -15,12 +15,12 @@ public class PersonDataReader implements DataReader<Person> {
 		list.add(data);
 	}
 
-	@Override
-	public Class<Person> getShemaClass() {
-		return Person.class;
-	}
-	
 	public List<Person> getDatas() {
 		return list;
+	}
+
+	@Override
+	public Class<Person> getDataClass() {
+		return Person.class;
 	}
 }

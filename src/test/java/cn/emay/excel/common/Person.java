@@ -3,6 +3,9 @@ package cn.emay.excel.common;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import cn.emay.excel.schema.annotation.ExcelColumn;
+import cn.emay.excel.schema.annotation.ExcelSheet;
+
 /**
  * 人
  * 
@@ -15,38 +18,38 @@ public class Person {
 	/**
 	 * 年龄
 	 */
-	@ExcelColumn(columnIndex = 0, title = "年龄")
+	@ExcelColumn(index = 0, title = "年龄")
 	private Integer age;
 	/**
 	 * 名字
 	 */
-	@ExcelColumn(columnIndex = 1, title = "名字")
+	@ExcelColumn(index = 1, title = "名字")
 	private String name;
 	/**
 	 * 生日
 	 */
-	@ExcelColumn(columnIndex = 2, express = "yyyy-MM-dd HH:mm:ss", title = "生日")
+	@ExcelColumn(index = 2, express = "yyyy-MM-dd HH:mm:ss", title = "生日")
 	private Date brith;
 	/**
 	 * 创建时间
 	 */
-	@ExcelColumn(columnIndex = 3, title = "创建时间")
+	@ExcelColumn(index = 3, title = "创建时间")
 	private long createTime;
 	/**
 	 * 得分
 	 */
-	@ExcelColumn(columnIndex = 4, express = "2", title = "得分")
+	@ExcelColumn(index = 4, express = "2", title = "得分")
 	private Double score;
 	/**
 	 * 是否戴眼镜
 	 */
-	@ExcelColumn(columnIndex = 5, title = "是否戴眼镜")
+	@ExcelColumn(index = 5, title = "是否戴眼镜")
 	private Boolean hasGlass;
 
 	/**
 	 * 资产
 	 */
-	@ExcelColumn(columnIndex = 6, express = "4", title = "资产")
+	@ExcelColumn(index = 6, express = "4", title = "资产")
 	private BigDecimal money;
 
 	public Person() {

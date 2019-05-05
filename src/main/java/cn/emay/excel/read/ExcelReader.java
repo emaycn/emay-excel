@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,11 +11,14 @@ import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.read.core.XlsReader;
 import cn.emay.excel.read.core.XlsxReader;
 import cn.emay.excel.read.handler.SheetReadHandler;
-import cn.emay.excel.read.handler.relize.DataReader;
-import cn.emay.excel.read.handler.relize.SheetReadBySchemaHandler;
+import cn.emay.excel.read.handler.impl.SheetReadHandlerForSchema;
+import cn.emay.excel.read.reader.DataReader;
+import cn.emay.excel.read.reader.DataReaderByCustomSchema;
+import cn.emay.excel.read.reader.impl.DataReaderForReturn;
+import cn.emay.excel.schema.base.SheetSchema;
 
 /**
- * Excel读<br/>
+ * Excel基础读取<br/>
  * XLSX统一采用SAX方式读取
  * 
  * @author Frank
@@ -25,172 +26,144 @@ import cn.emay.excel.read.handler.relize.SheetReadBySchemaHandler;
  */
 public class ExcelReader {
 
-	/*--------------------SCHEMA----------------------------*/
+	/**
+	 * 从文件中读取Excel表格第一个单元格<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param dataClass
+	 *            数据Class
+	 * @return 数据
+	 */
+	public static <D> List<D> readFirstSheet(String excelPath, Class<D> dataClass) {
+		return readBySheetIndex(excelPath, 0, dataClass);
+	}
+
+	/**
+	 * 从文件中按照表格名字读取Excel表格<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param sheetName
+	 *            Sheet页名字
+	 * @param dataClass
+	 *            数据Class
+	 * @return 数据
+	 */
+	public static <D> List<D> readBySheetName(String excelPath, String sheetName, Class<D> dataClass) {
+		DataReaderForReturn<D> dataReader = new DataReaderForReturn<D>(dataClass);
+		readBySheetName(excelPath, sheetName, dataReader);
+		return dataReader.getResult();
+	}
+
+	/**
+	 * 从文件中按照表格序号读取Excel表格<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param sheetIndex
+	 *            Sheet Index
+	 * @param dataClass
+	 *            数据Class
+	 * @return 数据
+	 */
+	public static <D> List<D> readBySheetIndex(String excelPath, int sheetIndex, Class<D> dataClass) {
+		DataReaderForReturn<D> dataReader = new DataReaderForReturn<D>(dataClass);
+		readBySheetIndex(excelPath, sheetIndex, dataReader);
+		return dataReader.getResult();
+	}
+
+	/**
+	 * 从文件中读取Excel表格第一个单元格<br/>
+	 * dataClass 实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param dataReader
+	 *            数据处理器
+	 * @return
+	 */
+	public static <D> void readFirstSheet(String excelPath, DataReader<D> dataReader) {
+		readBySheetIndex(excelPath, 0, dataReader);
+	}
+
+	/**
+	 * 从文件中按照表格名字读取Excel表格<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param sheetName
+	 *            Sheet页名字
+	 * @param dataReader
+	 *            数据处理器
+	 */
+	public static <D> void readBySheetName(String excelPath, String sheetName, DataReader<D> dataReader) {
+		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(new SheetSchema<D>(dataReader.getDataClass()), dataReader);
+		readBySheetName(excelPath, sheetName, handler);
+	}
+
+	/**
+	 * 从文件中按照表格序号读取Excel表格<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param sheetIndex
+	 *            Sheet Index
+	 * @param dataReader
+	 *            数据处理器
+	 */
+	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, DataReader<D> dataReader) {
+		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(new SheetSchema<D>(dataReader.getDataClass()), dataReader);
+		readBySheetIndex(excelPath, sheetIndex, handler);
+	}
 
 	/**
 	 * 从文件中读取Excel表格第一个单元格<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
-	 * @param dataReader
-	 *            Sheet读取处理器[处理器实例不可复用]
+	 * @param customSchemaReader
+	 *            自定义的表格定义读取器
 	 * @return
 	 */
-	public static <D> List<D> readFirstSheetWithSchema(String excelPath, Class<D> schemaClass) {
-		return readBySheetIndexWithSchema(excelPath, 0, schemaClass);
+	public static <D> void readFirstSheet(String excelPath, DataReaderByCustomSchema<D> customSchemaReader) {
+		readBySheetIndex(excelPath, 0, customSchemaReader);
 	}
 
 	/**
-	 * 从文件中读取Excel表格<br/>
+	 * 从文件中按照表格名字读取Excel表格<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
 	 * @param sheetName
 	 *            Sheet页名字
-	 * @param dataReader
-	 *            Sheet读取处理器[处理器实例不可复用]
-	 * @return
+	 * @param customSchemaReader
+	 *            自定义的表格定义读取器
 	 */
-	public static <D> List<D> readBySheetNameWithSchema(String excelPath, String sheetName, Class<D> schemaClass) {
-		if (sheetName == null) {
-			throw new IllegalArgumentException("sheetName is null");
-		}
-		if (schemaClass == null) {
-			throw new IllegalArgumentException("schemaClass is null");
-		}
-		NornamDataReader<D> nor = new NornamDataReader<D>(schemaClass);
-		readBySheetNameWithReader(excelPath, sheetName, nor);
-		return nor.getResult();
+	public static <D> void readBySheetName(String excelPath, String sheetName, DataReaderByCustomSchema<D> customSchemaReader) {
+		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(customSchemaReader.getCustomSheetSchema(), customSchemaReader);
+		readBySheetName(excelPath, sheetName, handler);
 	}
 
 	/**
-	 * 从文件中读取Excel表格<br/>
+	 * 从文件中按照表格序号读取Excel表格<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
 	 * @param sheetIndex
 	 *            Sheet Index
-	 * @param dataReader
-	 *            Sheet读取处理器[处理器实例不可复用]
-	 * @return
+	 * @param customSchemaReader
+	 *            自定义的表格定义读取器
 	 */
-	public static <D> List<D> readBySheetIndexWithSchema(String excelPath, int sheetIndex, Class<D> schemaClass) {
-		if (schemaClass == null) {
-			throw new IllegalArgumentException("schemaClass is null");
-		}
-		NornamDataReader<D> nor = new NornamDataReader<D>(schemaClass);
-		readBySheetIndexWithReader(excelPath, sheetIndex, nor);
-		return nor.getResult();
+	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, DataReaderByCustomSchema<D> customSchemaReader) {
+		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(customSchemaReader.getCustomSheetSchema(), customSchemaReader);
+		readBySheetIndex(excelPath, sheetIndex, handler);
 	}
-
-	/*----------DataReader---------------*/
-
-	/**
-	 * 从文件中读取Excel表格第一个sheet页<br/>
-	 * 
-	 * @param excelPath
-	 *            路径
-	 * @param dataReader
-	 *            Sheet读取处理器[处理器实例不可复用]
-	 */
-	public static void readFirstSheetWithReader(String excelPath, DataReader<?> dataReader) {
-		readBySheetIndexWithReader(excelPath, 0, dataReader);
-	}
-
-	/**
-	 * 从文件中读取Excel表格<br/>
-	 * 
-	 * @param excelPath
-	 *            路径
-	 * @param sheetIndex
-	 *            Sheet Index
-	 * @param dataReader
-	 *            Sheet读取处理器[处理器实例不可复用]
-	 */
-	public static void readBySheetIndexWithReader(String excelPath, int sheetIndex, DataReader<?> dataReader) {
-		if (dataReader == null) {
-			throw new IllegalArgumentException("dataReader is null");
-		}
-		Map<Integer, DataReader<?>> handlers = new HashMap<>(1);
-		handlers.put(sheetIndex, dataReader);
-		readBySheetIndexsWithReader(excelPath, handlers);
-	}
-
-	/**
-	 * 从文件中读取Excel表格<br/>
-	 * 按照表序号匹配读取处理器<br/>
-	 * 
-	 * @param excelPath
-	 *            路径
-	 * @param dataReadersByIndex
-	 *            按照Index匹配的Sheet读取处理器集合[处理器实例不可复用]
-	 */
-	public static void readBySheetIndexsWithReader(String excelPath, Map<Integer, DataReader<?>> dataReadersByIndex) {
-		if (dataReadersByIndex == null) {
-			throw new IllegalArgumentException("dataReadersByIndex is null");
-		}
-		Map<Integer, SheetReadHandler> handlers = new HashMap<>(dataReadersByIndex.size());
-		for (Integer sheetIndex : dataReadersByIndex.keySet()) {
-			DataReader<?> handler = dataReadersByIndex.get(sheetIndex);
-			if (handler == null) {
-				continue;
-			}
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			SheetReadBySchemaHandler<?> schandler = new SheetReadBySchemaHandler(handler);
-			handlers.put(sheetIndex, schandler);
-		}
-		readBySheetIndexs(excelPath, handlers);
-	}
-
-	/**
-	 * 从文件中读取Excel表格<br/>
-	 * 
-	 * @param excelPath
-	 *            路径
-	 * @param sheetName
-	 *            Sheet页名字
-	 * @param dataReader
-	 *            Sheet读取处理器[处理器实例不可复用]
-	 */
-	public static void readBySheetNameWithReader(String excelPath, String sheetName, DataReader<?> dataReader) {
-		if (sheetName == null) {
-			throw new IllegalArgumentException("sheetName is null");
-		}
-		if (dataReader == null) {
-			throw new IllegalArgumentException("dataReader is null");
-		}
-		Map<String, DataReader<?>> handlersByName = new HashMap<>(1);
-		handlersByName.put(sheetName, dataReader);
-		readBySheetNamesWithReader(excelPath, handlersByName);
-	}
-
-	/**
-	 * 从文件中读取Excel表格<br/>
-	 * 按照表名匹配读取处理器<br/>
-	 * 
-	 * @param excelPath
-	 *            路径
-	 * @param dataReadersByName
-	 *            按照表名匹配的Sheet读取处理器集合[处理器实例不可复用]
-	 */
-	public static void readBySheetNamesWithReader(String excelPath, Map<String, DataReader<?>> dataReadersByName) {
-		if (dataReadersByName == null) {
-			throw new IllegalArgumentException("dataReadersByName is null");
-		}
-		Map<String, SheetReadHandler> handlersByName = new HashMap<>(dataReadersByName.size());
-		for (String sheetName : dataReadersByName.keySet()) {
-			DataReader<?> handler = dataReadersByName.get(sheetName);
-			if (handler == null) {
-				continue;
-			}
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			SheetReadBySchemaHandler<?> schandler = new SheetReadBySchemaHandler(handler);
-			handlersByName.put(sheetName, schandler);
-		}
-		readBySheetNames(excelPath, handlersByName);
-	}
-
-	/*---------------------BASE-----------------------------*/
 
 	/**
 	 * 从文件中读取Excel表格第一个sheet页<br/>
@@ -206,6 +179,7 @@ public class ExcelReader {
 
 	/**
 	 * 从文件中读取Excel表格<br/>
+	 * 按照表格序号读取<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
@@ -243,6 +217,7 @@ public class ExcelReader {
 
 	/**
 	 * 从文件中读取Excel表格<br/>
+	 * 按照表格名字读取<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
@@ -334,6 +309,7 @@ public class ExcelReader {
 
 	/**
 	 * 从输入流中读取Excel表格<br/>
+	 * 按照表格序号读取<br/>
 	 * 
 	 * @param is
 	 *            输入流
@@ -385,6 +361,7 @@ public class ExcelReader {
 
 	/**
 	 * 从输入流中读取Excel表格<br/>
+	 * 按照表格名字读取<br/>
 	 * 
 	 * @param is
 	 *            输入流
@@ -491,39 +468,4 @@ interface FileHandler {
 	 * @param version
 	 */
 	void readHandler(InputStream is, ExcelVersion version);
-}
-
-/**
- * 内置的数据处理器
- * 
- * @author Frank
- *
- * @param <D>
- */
-class NornamDataReader<D> implements DataReader<D> {
-
-	private List<D> list = new ArrayList<>();
-
-	private Class<D> clazz;
-
-	public NornamDataReader(Class<D> clazz) {
-		this.clazz = clazz;
-	}
-
-	@Override
-	public void handlerRowData(int rowIndex, D data) {
-		if (data != null) {
-			list.add(data);
-		}
-	}
-
-	@Override
-	public Class<D> getShemaClass() {
-		return clazz;
-	}
-
-	public List<D> getResult() {
-		return list;
-	}
-
 }

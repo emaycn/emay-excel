@@ -1,4 +1,4 @@
-package cn.emay.excel.common;
+package cn.emay.excel.schema.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -69,7 +69,7 @@ public @interface ExcelSheet {
 	String writeSheetName() default "";
 
 	/**
-	 * 是否写入title<br/>
+	 * 是否写入title,默认true<br/>
 	 * 
 	 * - writer:是否将每个字段的title写在第一行；<br/>
 	 * 
@@ -80,8 +80,7 @@ public @interface ExcelSheet {
 	/**
 	 * 写入缓存条数<br/>
 	 * 
-	 * -
-	 * writer:当写xlsx时，如果writeCacheNumber大于100，采用实时内存写盘方式，如果writeCacheNumber小于100，采用写完数据后统一写盘方式；<br/>
+	 * - writer:当写xlsx时，如果writeCacheNumber>=1000，实时刷盘；如果writeCacheNumber<1000，内存构建完成后刷盘；<br/>
 	 * 
 	 * @return
 	 */

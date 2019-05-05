@@ -30,7 +30,7 @@ public class ExcelTest {
 	private static List<Person> datas = new ArrayList<Person>(7);
 	private static List<String> titles = new ArrayList<String>(7);
 
-	@BeforeClass
+	 @BeforeClass
 	public static void before() {
 		String dirPath = System.getProperty("user.dir") + File.separator;
 		xlsPath = dirPath + File.separatorChar + "exceltest.xls";
@@ -75,9 +75,9 @@ public class ExcelTest {
 		}
 	}
 
-	@Test
+	 @Test
 	public void normalXlsTest() {
-		ExcelWriter.writeExcel(xlsPath, new WriteNormalHandler(titles, datas));
+		ExcelWriter.write(xlsPath, new WriteNormalHandler(titles, datas));
 		ReadNormalHandler handler = new ReadNormalHandler();
 		ExcelReader.readFirstSheet(xlsPath, handler);
 		List<Person> list = handler.getDatas();
@@ -86,9 +86,9 @@ public class ExcelTest {
 		check(list);
 	}
 
-	@Test
+	 @Test
 	public void normalXlsxTest() {
-		ExcelWriter.writeExcel(xlsxPath, new WriteNormalHandler(titles, datas));
+		ExcelWriter.write(xlsxPath, new WriteNormalHandler(titles, datas));
 		ReadNormalHandler handler = new ReadNormalHandler();
 		ExcelReader.readFirstSheet(xlsxPath, handler);
 		List<Person> list = handler.getDatas();
@@ -97,39 +97,39 @@ public class ExcelTest {
 		check(list);
 	}
 
-	@Test
+	 @Test
 	public void dataXlsTest() {
-		ExcelWriter.writeExcel(xlsPath, new PersonDataWriter(datas));
+		ExcelWriter.write(xlsPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
-		ExcelReader.readFirstSheetWithReader(xlsPath, red);
+		ExcelReader.readFirstSheet(xlsPath, red);
 		List<Person> list = red.getDatas();
 		check(list);
 	}
 
-	@Test
+	 @Test
 	public void dataXlsxTest() {
-		ExcelWriter.writeExcel(xlsxPath, new PersonDataWriter(datas));
+		ExcelWriter.write(xlsxPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
-		ExcelReader.readFirstSheetWithReader(xlsxPath, red);
+		ExcelReader.readFirstSheet(xlsxPath, red);
 		List<Person> list = red.getDatas();
 		check(list);
 	}
 
-	@Test
+	 @Test
 	public void schemaXlsTest() {
-		ExcelWriter.writeExcel(xlsPath, datas);
-		List<Person> list = ExcelReader.readFirstSheetWithSchema(xlsPath, Person.class);
+		ExcelWriter.write(xlsPath, datas);
+		List<Person> list = ExcelReader.readFirstSheet(xlsPath, Person.class);
 		check(list);
 	}
 
-	@Test
+	 @Test
 	public void schemaTest() {
-		ExcelWriter.writeExcel(xlsxPath, datas);
-		List<Person> list = ExcelReader.readFirstSheetWithSchema(xlsxPath, Person.class);
+		ExcelWriter.write(xlsxPath, datas);
+		List<Person> list = ExcelReader.readFirstSheet(xlsxPath, Person.class);
 		check(list);
 	}
 
-	@After
+	 @After
 	public void after() {
 		new File(xlsPath).delete();
 		new File(xlsxPath).delete();

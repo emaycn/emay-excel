@@ -3,7 +3,7 @@ package cn.emay.excel.writer.handler;
 import java.util.List;
 
 import cn.emay.excel.common.Person;
-import cn.emay.excel.write.handler.impl.DataWriter;
+import cn.emay.excel.write.writer.DataWriter;
 
 /**
  * 
@@ -31,7 +31,7 @@ public class PersonDataWriter implements DataWriter<Person> {
 	}
 
 	@Override
-	public Class<Person> getShemaClass() {
+	public Class<Person> getDataClass() {
 		return Person.class;
 	}
 

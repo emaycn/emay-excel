@@ -44,7 +44,8 @@ public interface SheetReadHandler {
 	void beginRow(int rowIndex);
 
 	/**
-	 * 处理Cell
+	 * 处理Xls的单元格<br/>
+	 * 解析98/03版本.xls后缀的Excel文件是调用此方法
 	 * 
 	 * @param rowIndex
 	 *            行号
@@ -56,7 +57,8 @@ public interface SheetReadHandler {
 	void handleXlsCell(int rowIndex, int columnIndex, Cell cell);
 
 	/**
-	 * 处理Cell
+	 * 处理Xlsx的单元格<br/>
+	 * 解析07+版本.xlsx后缀的Excel文件是调用此方法
 	 * 
 	 * @param rowIndex
 	 *            行号
