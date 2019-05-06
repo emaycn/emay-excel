@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.emay.excel.common.Person;
-import cn.emay.excel.read.reader.DataReader;
+import cn.emay.excel.read.handler.SheetDataHandler;
 
-public class PersonDataReader implements DataReader<Person> {
+public class PersonDataReader implements SheetDataHandler<Person> {
 
 	private List<Person> list = new ArrayList<>();
 
 	@Override
-	public void handlerRowData(int rowIndex, Person data) {
+	public void handle(int rowIndex, Person data) {
 		list.add(data);
 	}
 

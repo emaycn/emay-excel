@@ -3,14 +3,14 @@ package cn.emay.excel.writer.handler;
 import java.util.List;
 
 import cn.emay.excel.common.Person;
-import cn.emay.excel.write.writer.DataWriter;
+import cn.emay.excel.write.data.SheetDataGetter;
 
 /**
  * 
  * @author Frank
  *
  */
-public class PersonDataWriter implements DataWriter<Person> {
+public class PersonDataWriter implements SheetDataGetter<Person> {
 
 	private List<Person> datas;
 	int size;

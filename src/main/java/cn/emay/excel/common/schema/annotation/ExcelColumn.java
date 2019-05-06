@@ -1,4 +1,4 @@
-package cn.emay.excel.schema.annotation;
+package cn.emay.excel.common.schema.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

@@ -1,4 +1,4 @@
-package cn.emay.excel.schema.base;
+package cn.emay.excel.common.schema.base;
 
 /**
  * 列定义

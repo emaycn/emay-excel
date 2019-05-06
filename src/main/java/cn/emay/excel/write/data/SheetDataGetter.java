@@ -1,4 +1,4 @@
-package cn.emay.excel.write.writer;
+package cn.emay.excel.write.data;
 
 /**
  * 
@@ -8,7 +8,7 @@ package cn.emay.excel.write.writer;
  *
  * @param <D>
  */
-public interface DataWriter<D> {
+public interface SheetDataGetter<D> {
 
 	/**
 	 * 获取数据

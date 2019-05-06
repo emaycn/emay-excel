@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import cn.emay.excel.read.handler.SheetReadHandler;
+import cn.emay.excel.read.reader.SheetReader;
 
 /**
  * XLS读取器
@@ -31,14 +31,14 @@ public class XlsReader {
 	 * @param handler
 	 *            Sheet读取处理器
 	 */
-	public static void readBySheetIndex(InputStream is, int sheetIndex, SheetReadHandler handler) {
+	public static void readBySheetIndex(InputStream is, int sheetIndex, SheetReader handler) {
 		if (handler == null) {
 			throw new IllegalArgumentException("handler is null");
 		}
 		if (sheetIndex < 0) {
 			throw new IllegalArgumentException("sheetIndex begin with 0 , and must bigger than 0");
 		}
-		Map<Integer, SheetReadHandler> handlers = new HashMap<>(1);
+		Map<Integer, SheetReader> handlers = new HashMap<>(1);
 		handlers.put(sheetIndex, handler);
 		readBySheetIndexs(is, handlers);
 	}
@@ -53,14 +53,14 @@ public class XlsReader {
 	 * @param handler
 	 *            Sheet读取处理器
 	 */
-	public static void readBySheetIndex(Workbook workbook, int sheetIndex, SheetReadHandler handler) {
+	public static void readBySheetIndex(Workbook workbook, int sheetIndex, SheetReader handler) {
 		if (handler == null) {
 			throw new IllegalArgumentException("handler is null");
 		}
 		if (sheetIndex < 0) {
 			throw new IllegalArgumentException("sheetIndex begin with 0 , and must bigger than 0");
 		}
-		Map<Integer, SheetReadHandler> handlers = new HashMap<>(1);
+		Map<Integer, SheetReader> handlers = new HashMap<>(1);
 		handlers.put(sheetIndex, handler);
 		readBySheetIndexs(workbook, handlers);
 	}
@@ -73,11 +73,11 @@ public class XlsReader {
 	 * @param handlers
 	 *            Excel表处理器(handlers顺序号即为读取ExccelSheet的编号)
 	 */
-	public static void readByOrder(InputStream is, SheetReadHandler... handlers) {
+	public static void readByOrder(InputStream is, SheetReader... handlers) {
 		if (handlers == null || handlers.length == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
-		Map<Integer, SheetReadHandler> handlersByIndex = new HashMap<>(handlers.length);
+		Map<Integer, SheetReader> handlersByIndex = new HashMap<>(handlers.length);
 		for (int i = 0; i < handlers.length; i++) {
 			handlersByIndex.put(i, handlers[i]);
 		}
@@ -92,11 +92,11 @@ public class XlsReader {
 	 * @param handlers
 	 *            Excel表处理器(handlers顺序号即为读取ExccelSheet的编号)
 	 */
-	public static void readByOrder(Workbook workbook, SheetReadHandler... handlers) {
+	public static void readByOrder(Workbook workbook, SheetReader... handlers) {
 		if (handlers == null || handlers.length == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
-		Map<Integer, SheetReadHandler> handlersByIndex = new HashMap<>(handlers.length);
+		Map<Integer, SheetReader> handlersByIndex = new HashMap<>(handlers.length);
 		for (int i = 0; i < handlers.length; i++) {
 			handlersByIndex.put(i, handlers[i]);
 		}
@@ -112,7 +112,7 @@ public class XlsReader {
 	 * @param handlersByIndex
 	 *            按照Index匹配的Sheet读取处理器集合
 	 */
-	public static void readBySheetIndexs(InputStream is, Map<Integer, SheetReadHandler> handlersByIndex) {
+	public static void readBySheetIndexs(InputStream is, Map<Integer, SheetReader> handlersByIndex) {
 		if (handlersByIndex == null || handlersByIndex.size() == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
@@ -128,7 +128,7 @@ public class XlsReader {
 	 * @param handlersByIndex
 	 *            按照Index匹配的Sheet读取处理器集合
 	 */
-	public static void readBySheetIndexs(Workbook workbook, Map<Integer, SheetReadHandler> handlersByIndex) {
+	public static void readBySheetIndexs(Workbook workbook, Map<Integer, SheetReader> handlersByIndex) {
 		if (handlersByIndex == null || handlersByIndex.size() == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
@@ -145,14 +145,14 @@ public class XlsReader {
 	 * @param handler
 	 *            Sheet读取处理器
 	 */
-	public static void readBySheetName(InputStream is, String sheetName, SheetReadHandler handler) {
+	public static void readBySheetName(InputStream is, String sheetName, SheetReader handler) {
 		if (handler == null) {
 			throw new IllegalArgumentException("handler is null");
 		}
 		if (sheetName == null) {
 			throw new IllegalArgumentException("sheetName is null");
 		}
-		Map<String, SheetReadHandler> handlersByName = new HashMap<>(1);
+		Map<String, SheetReader> handlersByName = new HashMap<>(1);
 		handlersByName.put(sheetName, handler);
 		readBySheetNames(is, handlersByName);
 	}
@@ -167,14 +167,14 @@ public class XlsReader {
 	 * @param handler
 	 *            Sheet读取处理器
 	 */
-	public static void readBySheetName(Workbook workbook, String sheetName, SheetReadHandler handler) {
+	public static void readBySheetName(Workbook workbook, String sheetName, SheetReader handler) {
 		if (handler == null) {
 			throw new IllegalArgumentException("handler is null");
 		}
 		if (sheetName == null) {
 			throw new IllegalArgumentException("sheetName is null");
 		}
-		Map<String, SheetReadHandler> handlersByName = new HashMap<>(1);
+		Map<String, SheetReader> handlersByName = new HashMap<>(1);
 		handlersByName.put(sheetName, handler);
 		readBySheetNames(workbook, handlersByName);
 	}
@@ -188,7 +188,7 @@ public class XlsReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合
 	 */
-	public static void readBySheetNames(InputStream is, Map<String, SheetReadHandler> handlersByName) {
+	public static void readBySheetNames(InputStream is, Map<String, SheetReader> handlersByName) {
 		if (handlersByName == null || handlersByName.size() == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
@@ -204,7 +204,7 @@ public class XlsReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合
 	 */
-	public static void readBySheetNames(Workbook workbook, Map<String, SheetReadHandler> handlersByName) {
+	public static void readBySheetNames(Workbook workbook, Map<String, SheetReader> handlersByName) {
 		if (handlersByName == null || handlersByName.size() == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
@@ -222,7 +222,7 @@ public class XlsReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合
 	 */
-	public static void read(InputStream is,  Map<Integer, SheetReadHandler> handlersByIndex, Map<String, SheetReadHandler> handlersByName) {
+	public static void read(InputStream is,  Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
 		if (is == null) {
 			throw new IllegalArgumentException("InputStream is null");
 		}
@@ -260,7 +260,7 @@ public class XlsReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合
 	 */
-	public static void read(Workbook workbook,Map<Integer, SheetReadHandler> handlersByIndex, Map<String, SheetReadHandler> handlersByName) {
+	public static void read(Workbook workbook,Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
 		if (workbook == null) {
 			throw new IllegalArgumentException("workbook is null");
 		}
@@ -270,7 +270,7 @@ public class XlsReader {
 				continue;
 			}
 			String name = sheet.getSheetName();
-			SheetReadHandler readHander = null;
+			SheetReader readHander = null;
 			if(handlersByIndex != null) {
 				readHander = handlersByIndex.get(i);
 			}
@@ -292,7 +292,7 @@ public class XlsReader {
 	 * @param handler
 	 *            Sheet读取处理器
 	 */
-	public static void readSheet(Sheet sheet, SheetReadHandler handler) {
+	public static void readSheet(Sheet sheet, SheetReader handler) {
 		if (sheet == null) {
 			throw new IllegalArgumentException("sheet is null");
 		}

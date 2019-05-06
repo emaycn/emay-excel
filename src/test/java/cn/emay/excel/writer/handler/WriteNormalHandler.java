@@ -8,14 +8,14 @@ import org.apache.poi.ss.usermodel.CellStyle;
 
 import cn.emay.excel.common.Person;
 import cn.emay.excel.write.ExcelWriterHelper;
-import cn.emay.excel.write.handler.SheetWriteHandler;
+import cn.emay.excel.write.writer.SheetWriter;
 
 /**
  * 
  * @author Frank
  *
  */
-public class WriteNormalHandler implements SheetWriteHandler {
+public class WriteNormalHandler implements SheetWriter {
 
 	private List<Person> datas;
 	private List<String> titles;

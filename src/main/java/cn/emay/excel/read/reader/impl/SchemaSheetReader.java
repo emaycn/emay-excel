@@ -1,4 +1,4 @@
-package cn.emay.excel.read.handler.impl;
+package cn.emay.excel.read.reader.impl;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -10,11 +10,12 @@ import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
 
+import cn.emay.excel.common.schema.base.ColumnSchema;
+import cn.emay.excel.common.schema.base.SheetSchema;
 import cn.emay.excel.read.ExcelReadHelper;
-import cn.emay.excel.read.handler.SheetReadHandler;
-import cn.emay.excel.read.reader.DataReader;
-import cn.emay.excel.schema.base.ColumnSchema;
-import cn.emay.excel.schema.base.SheetSchema;
+import cn.emay.excel.read.handler.SchemaSheetDataHandler;
+import cn.emay.excel.read.handler.SheetDataHandler;
+import cn.emay.excel.read.reader.SheetReader;
 
 /**
  * 定义方式读取
@@ -24,7 +25,7 @@ import cn.emay.excel.schema.base.SheetSchema;
  * @param <D>
  *            数据
  */
-public class SheetReadHandlerForSchema<D> implements SheetReadHandler {
+public class SchemaSheetReader<D> implements SheetReader {
 
 	/**
 	 * 定义
@@ -33,7 +34,7 @@ public class SheetReadHandlerForSchema<D> implements SheetReadHandler {
 	/**
 	 * 数据处理器
 	 */
-	private DataReader<D> dataReader;
+	private SheetDataHandler<D> dataReader;
 	/**
 	 * 是否按照列序号读取
 	 */
@@ -61,6 +62,10 @@ public class SheetReadHandlerForSchema<D> implements SheetReadHandler {
 	 */
 	private Map<Integer, String> colTitles = new HashMap<>();
 
+	public SchemaSheetReader(SchemaSheetDataHandler<D> schemaSheetDataHandler) {
+		this(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
+	}
+
 	/**
 	 * 
 	 * @param schema
@@ -68,7 +73,7 @@ public class SheetReadHandlerForSchema<D> implements SheetReadHandler {
 	 * @param dataReader
 	 *            数据处理器
 	 */
-	public SheetReadHandlerForSchema(SheetSchema<D> schema, DataReader<D> dataReader) {
+	public SchemaSheetReader(SheetSchema<D> schema, SheetDataHandler<D> dataReader) {
 		if (schema == null) {
 			throw new IllegalArgumentException("schema is null");
 		}
@@ -228,7 +233,7 @@ public class SheetReadHandlerForSchema<D> implements SheetReadHandler {
 	@Override
 	public void endRow(int rowIndex) {
 		if (curData != null) {
-			dataReader.handlerRowData(rowIndex, curData);
+			dataReader.handle(rowIndex, curData);
 		}
 	}
 

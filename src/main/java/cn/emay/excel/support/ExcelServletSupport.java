@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.write.ExcelWriter;
-import cn.emay.excel.write.handler.SheetWriteHandler;
-import cn.emay.excel.write.writer.DataWriter;
+import cn.emay.excel.write.data.SheetDataGetter;
+import cn.emay.excel.write.writer.SheetWriter;
 
 /**
  * Excel针对Servlet的支持
@@ -33,7 +33,7 @@ public class ExcelServletSupport {
 	 * @param handlers
 	 *            写Sheet处理器
 	 */
-	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, SheetWriteHandler... handlers) {
+	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, SheetWriter... handlers) {
 		try {
 			if (handlers == null || handlers.length == 0) {
 				throw new IllegalArgumentException("excel handlers is empty!");
@@ -63,7 +63,7 @@ public class ExcelServletSupport {
 	 * @param datas
 	 *            写Sheet的数据处理器（数据要实现@ExcelSheet、@ExcelColumn注解）
 	 */
-	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, DataWriter<?> datas) {
+	public static void outputWithExcel(HttpServletResponse response, String excelName, ExcelVersion version, SheetDataGetter<?> datas) {
 		try {
 			if (datas == null) {
 				throw new IllegalArgumentException("excel datas is empty!");

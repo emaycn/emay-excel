@@ -1,4 +1,4 @@
-package cn.emay.excel.write.handler.impl;
+package cn.emay.excel.write.writer.impl;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -23,11 +23,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
-import cn.emay.excel.schema.base.ColumnSchema;
-import cn.emay.excel.schema.base.SheetSchema;
+import cn.emay.excel.common.schema.base.ColumnSchema;
+import cn.emay.excel.common.schema.base.SheetSchema;
 import cn.emay.excel.write.ExcelWriterHelper;
-import cn.emay.excel.write.handler.SheetWriteHandler;
-import cn.emay.excel.write.writer.DataWriter;
+import cn.emay.excel.write.data.SheetDataGetter;
+import cn.emay.excel.write.writer.SheetWriter;
 
 /**
  * 
@@ -37,7 +37,7 @@ import cn.emay.excel.write.writer.DataWriter;
  *
  * @param <D>
  */
-public class SheetWriteHandlerForSchema<D> implements SheetWriteHandler {
+public class SchemaSheetWriter<D> implements SheetWriter {
 
 	/**
 	 * 默认颜色
@@ -80,7 +80,7 @@ public class SheetWriteHandlerForSchema<D> implements SheetWriteHandler {
 	/**
 	 * 数据写入处理器
 	 */
-	private DataWriter<D> writeData;
+	private SheetDataGetter<D> writeData;
 	/**
 	 * 当前数据
 	 */
@@ -95,7 +95,7 @@ public class SheetWriteHandlerForSchema<D> implements SheetWriteHandler {
 	 * @param writeData
 	 *            数据写入处理器
 	 */
-	public SheetWriteHandlerForSchema(SheetSchema<D> schema, DataWriter<D> writeData) {
+	public SchemaSheetWriter(SheetSchema<D> schema, SheetDataGetter<D> writeData) {
 		if (schema == null) {
 			throw new IllegalArgumentException("schema is null");
 		}

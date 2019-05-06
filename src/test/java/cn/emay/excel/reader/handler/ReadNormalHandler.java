@@ -7,14 +7,14 @@ import org.apache.poi.ss.usermodel.Cell;
 
 import cn.emay.excel.common.Person;
 import cn.emay.excel.read.ExcelReadHelper;
-import cn.emay.excel.read.handler.SheetReadHandler;
+import cn.emay.excel.read.reader.SheetReader;
 
 /**
  * 
  * @author Frank
  *
  */
-public class ReadNormalHandler implements SheetReadHandler {
+public class ReadNormalHandler implements SheetReader {
 
 	private List<Person> list = new ArrayList<>();
 	private List<String> titles = new ArrayList<String>();

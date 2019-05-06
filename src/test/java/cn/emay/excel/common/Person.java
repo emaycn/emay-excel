@@ -3,8 +3,8 @@ package cn.emay.excel.common;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import cn.emay.excel.schema.annotation.ExcelColumn;
-import cn.emay.excel.schema.annotation.ExcelSheet;
+import cn.emay.excel.common.schema.annotation.ExcelColumn;
+import cn.emay.excel.common.schema.annotation.ExcelSheet;
 
 /**
  * 人

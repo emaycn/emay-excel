@@ -1,4 +1,4 @@
-package cn.emay.excel.write.handler;
+package cn.emay.excel.write.writer;
 
 import org.apache.poi.ss.usermodel.Cell;
 
@@ -8,7 +8,7 @@ import org.apache.poi.ss.usermodel.Cell;
  * @author Frank
  *
  */
-public interface SheetWriteHandler {
+public interface SheetWriter {
 
 	/**
 	 * 写入的表名

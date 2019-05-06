@@ -4,18 +4,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import cn.emay.excel.common.ExcelVersion;
+import cn.emay.excel.common.schema.base.SheetSchema;
 import cn.emay.excel.read.core.XlsReader;
 import cn.emay.excel.read.core.XlsxReader;
-import cn.emay.excel.read.handler.SheetReadHandler;
-import cn.emay.excel.read.handler.impl.SheetReadHandlerForSchema;
-import cn.emay.excel.read.reader.DataReader;
-import cn.emay.excel.read.reader.DataReaderByCustomSchema;
-import cn.emay.excel.read.reader.impl.DataReaderForReturn;
-import cn.emay.excel.schema.base.SheetSchema;
+import cn.emay.excel.read.handler.SchemaSheetDataHandler;
+import cn.emay.excel.read.handler.SheetDataHandler;
+import cn.emay.excel.read.reader.SheetReader;
+import cn.emay.excel.read.reader.impl.SchemaSheetReader;
 
 /**
  * Excel基础读取<br/>
@@ -53,7 +53,7 @@ public class ExcelReader {
 	 * @return 数据
 	 */
 	public static <D> List<D> readBySheetName(String excelPath, String sheetName, Class<D> dataClass) {
-		DataReaderForReturn<D> dataReader = new DataReaderForReturn<D>(dataClass);
+		ReturnSchemaDataReader<D> dataReader = new ReturnSchemaDataReader<D>(dataClass);
 		readBySheetName(excelPath, sheetName, dataReader);
 		return dataReader.getResult();
 	}
@@ -71,7 +71,7 @@ public class ExcelReader {
 	 * @return 数据
 	 */
 	public static <D> List<D> readBySheetIndex(String excelPath, int sheetIndex, Class<D> dataClass) {
-		DataReaderForReturn<D> dataReader = new DataReaderForReturn<D>(dataClass);
+		ReturnSchemaDataReader<D> dataReader = new ReturnSchemaDataReader<D>(dataClass);
 		readBySheetIndex(excelPath, sheetIndex, dataReader);
 		return dataReader.getResult();
 	}
@@ -86,7 +86,7 @@ public class ExcelReader {
 	 *            数据处理器
 	 * @return
 	 */
-	public static <D> void readFirstSheet(String excelPath, DataReader<D> dataReader) {
+	public static <D> void readFirstSheet(String excelPath, SheetDataHandler<D> dataReader) {
 		readBySheetIndex(excelPath, 0, dataReader);
 	}
 
@@ -101,8 +101,8 @@ public class ExcelReader {
 	 * @param dataReader
 	 *            数据处理器
 	 */
-	public static <D> void readBySheetName(String excelPath, String sheetName, DataReader<D> dataReader) {
-		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(new SheetSchema<D>(dataReader.getDataClass()), dataReader);
+	public static <D> void readBySheetName(String excelPath, String sheetName, SheetDataHandler<D> dataReader) {
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema<D>(dataReader.getDataClass()), dataReader);
 		readBySheetName(excelPath, sheetName, handler);
 	}
 
@@ -117,8 +117,8 @@ public class ExcelReader {
 	 * @param dataReader
 	 *            数据处理器
 	 */
-	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, DataReader<D> dataReader) {
-		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(new SheetSchema<D>(dataReader.getDataClass()), dataReader);
+	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, SheetDataHandler<D> dataReader) {
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema<D>(dataReader.getDataClass()), dataReader);
 		readBySheetIndex(excelPath, sheetIndex, handler);
 	}
 
@@ -131,8 +131,8 @@ public class ExcelReader {
 	 *            自定义的表格定义读取器
 	 * @return
 	 */
-	public static <D> void readFirstSheet(String excelPath, DataReaderByCustomSchema<D> customSchemaReader) {
-		readBySheetIndex(excelPath, 0, customSchemaReader);
+	public static <D> void readFirstSheet(String excelPath,  SchemaSheetDataHandler<D> schemaSheetDataHandler) {
+		readBySheetIndex(excelPath, 0, schemaSheetDataHandler);
 	}
 
 	/**
@@ -145,8 +145,8 @@ public class ExcelReader {
 	 * @param customSchemaReader
 	 *            自定义的表格定义读取器
 	 */
-	public static <D> void readBySheetName(String excelPath, String sheetName, DataReaderByCustomSchema<D> customSchemaReader) {
-		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(customSchemaReader.getCustomSheetSchema(), customSchemaReader);
+	public static <D> void readBySheetName(String excelPath, String sheetName,  SchemaSheetDataHandler<D> schemaSheetDataHandler) {
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
 		readBySheetName(excelPath, sheetName, handler);
 	}
 
@@ -160,8 +160,8 @@ public class ExcelReader {
 	 * @param customSchemaReader
 	 *            自定义的表格定义读取器
 	 */
-	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, DataReaderByCustomSchema<D> customSchemaReader) {
-		SheetReadHandlerForSchema<D> handler = new SheetReadHandlerForSchema<D>(customSchemaReader.getCustomSheetSchema(), customSchemaReader);
+	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, SchemaSheetDataHandler<D> schemaSheetDataHandler) {
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
 		readBySheetIndex(excelPath, sheetIndex, handler);
 	}
 
@@ -173,7 +173,7 @@ public class ExcelReader {
 	 * @param handler
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
-	public static void readFirstSheet(String excelPath, SheetReadHandler handler) {
+	public static void readFirstSheet(String excelPath, SheetReader handler) {
 		readBySheetIndex(excelPath, 0, handler);
 	}
 
@@ -188,7 +188,7 @@ public class ExcelReader {
 	 * @param handler
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
-	public static void readBySheetIndex(String excelPath, int sheetIndex, SheetReadHandler handler) {
+	public static void readBySheetIndex(String excelPath, int sheetIndex, SheetReader handler) {
 		readPath(excelPath, new FileHandler() {
 			@Override
 			public void readHandler(InputStream is, ExcelVersion version) {
@@ -206,7 +206,7 @@ public class ExcelReader {
 	 * @param handlersByIndex
 	 *            按照Index匹配的Sheet读取处理器集合[处理器实例不可复用]
 	 */
-	public static void readBySheetIndexs(String excelPath, Map<Integer, SheetReadHandler> handlersByIndex) {
+	public static void readBySheetIndexs(String excelPath, Map<Integer, SheetReader> handlersByIndex) {
 		readPath(excelPath, new FileHandler() {
 			@Override
 			public void readHandler(InputStream is, ExcelVersion version) {
@@ -226,7 +226,7 @@ public class ExcelReader {
 	 * @param handler
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
-	public static void readBySheetName(String excelPath, String sheetName, SheetReadHandler handler) {
+	public static void readBySheetName(String excelPath, String sheetName, SheetReader handler) {
 		readPath(excelPath, new FileHandler() {
 			@Override
 			public void readHandler(InputStream is, ExcelVersion version) {
@@ -244,7 +244,7 @@ public class ExcelReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合[处理器实例不可复用]
 	 */
-	public static void readBySheetNames(String excelPath, Map<String, SheetReadHandler> handlersByName) {
+	public static void readBySheetNames(String excelPath, Map<String, SheetReader> handlersByName) {
 		readPath(excelPath, new FileHandler() {
 			@Override
 			public void readHandler(InputStream is, ExcelVersion version) {
@@ -303,7 +303,7 @@ public class ExcelReader {
 	 * @param handler
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
-	public static void readFirstSheet(InputStream is, ExcelVersion version, SheetReadHandler handler) {
+	public static void readFirstSheet(InputStream is, ExcelVersion version, SheetReader handler) {
 		readBySheetIndex(is, version, 0, handler);
 	}
 
@@ -320,7 +320,7 @@ public class ExcelReader {
 	 * @param handler
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
-	public static void readBySheetIndex(InputStream is, ExcelVersion version, int sheetIndex, SheetReadHandler handler) {
+	public static void readBySheetIndex(InputStream is, ExcelVersion version, int sheetIndex, SheetReader handler) {
 		readInputStream(is, version, new InputStreamHandler() {
 			@Override
 			public void readHandler() {
@@ -345,7 +345,7 @@ public class ExcelReader {
 	 * @param handlersByIndex
 	 *            按照Index匹配的Sheet读取处理器集合[处理器实例不可复用]
 	 */
-	public static void readBySheetIndexs(InputStream is, ExcelVersion version, Map<Integer, SheetReadHandler> handlersByIndex) {
+	public static void readBySheetIndexs(InputStream is, ExcelVersion version, Map<Integer, SheetReader> handlersByIndex) {
 		readInputStream(is, version, new InputStreamHandler() {
 			@Override
 			public void readHandler() {
@@ -372,7 +372,7 @@ public class ExcelReader {
 	 * @param handler
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
-	public static void readBySheetName(InputStream is, ExcelVersion version, String sheetName, SheetReadHandler handler) {
+	public static void readBySheetName(InputStream is, ExcelVersion version, String sheetName, SheetReader handler) {
 		readInputStream(is, version, new InputStreamHandler() {
 			@Override
 			public void readHandler() {
@@ -397,7 +397,7 @@ public class ExcelReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合[处理器实例不可复用]
 	 */
-	public static void readBySheetNames(InputStream is, ExcelVersion version, Map<String, SheetReadHandler> handlersByName) {
+	public static void readBySheetNames(InputStream is, ExcelVersion version, Map<String, SheetReader> handlersByName) {
 		readInputStream(is, version, new InputStreamHandler() {
 			@Override
 			public void readHandler() {
@@ -468,4 +468,47 @@ interface FileHandler {
 	 * @param version
 	 */
 	void readHandler(InputStream is, ExcelVersion version);
+}
+
+/**
+ * 结果全部保存到内存中统一返回的数据处理器
+ * 
+ * @author Frank
+ *
+ * @param <D>
+ */
+class ReturnSchemaDataReader<D> implements SheetDataHandler<D> {
+
+	/**
+	 * 所有数据
+	 */
+	private List<D> list = new ArrayList<>();
+	
+	private Class<D> dataClass;
+	
+	public ReturnSchemaDataReader(Class<D> dataClass) {
+		this.dataClass = dataClass;
+	}
+
+	@Override
+	public void handle(int rowIndex, D data) {
+		if (data != null) {
+			list.add(data);
+		}
+	}
+
+	/**
+	 * 获取所有数据
+	 * 
+	 * @return
+	 */
+	public List<D> getResult() {
+		return list;
+	}
+
+	@Override
+	public Class<D> getDataClass() {
+		return dataClass;
+	}
+
 }

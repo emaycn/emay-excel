@@ -1,13 +1,13 @@
-package cn.emay.excel.schema.base;
+package cn.emay.excel.common.schema.base;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.emay.excel.schema.annotation.ExcelColumn;
-import cn.emay.excel.schema.annotation.ExcelSheet;
-import cn.emay.excel.schema.base.ColumnSchema;
-import cn.emay.excel.schema.base.SheetSchemaParams;
+import cn.emay.excel.common.schema.annotation.ExcelColumn;
+import cn.emay.excel.common.schema.annotation.ExcelSheet;
+import cn.emay.excel.common.schema.base.ColumnSchema;
+import cn.emay.excel.common.schema.base.SheetSchemaParams;
 
 /**
  * Excel表定义

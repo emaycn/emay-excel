@@ -1,4 +1,4 @@
-package cn.emay.excel.read.reader;
+package cn.emay.excel.read.handler;
 
 /**
  * 
@@ -8,7 +8,7 @@ package cn.emay.excel.read.reader;
  *
  * @param <D>
  */
-public interface DataReader<D> {
+public interface SheetDataHandler<D> {
 
 	/**
 	 * 处理一行数据
@@ -18,7 +18,7 @@ public interface DataReader<D> {
 	 * @param rowIndex
 	 *            行号
 	 */
-	void handlerRowData(int rowIndex, D data);
+	void handle(int rowIndex, D data);
 	
 	Class<D> getDataClass();
 

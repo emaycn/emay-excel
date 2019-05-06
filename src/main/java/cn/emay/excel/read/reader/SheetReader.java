@@ -1,4 +1,4 @@
-package cn.emay.excel.read.handler;
+package cn.emay.excel.read.reader;
 
 import org.apache.poi.ss.usermodel.Cell;
 
@@ -8,7 +8,7 @@ import org.apache.poi.ss.usermodel.Cell;
  * @author Frank
  *
  */
-public interface SheetReadHandler {
+public interface SheetReader {
 
 	/**
 	 * 开始读取的行数[从0开始]
