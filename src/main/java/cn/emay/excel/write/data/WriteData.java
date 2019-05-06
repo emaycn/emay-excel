@@ -56,6 +56,15 @@ public class WriteData {
 		this.express = express;
 	}
 
+	/**
+	 * 获取坐标
+	 * 
+	 * @return
+	 */
+	public int[] getCoordinate() {
+		return new int[] { sheetIndex, rowIndex, columnIndex };
+	}
+
 	public int getSheetIndex() {
 		return sheetIndex;
 	}

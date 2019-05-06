@@ -84,7 +84,7 @@ public @interface ExcelSheet {
 	 * 
 	 * @return
 	 */
-	int cacheNumber() default 100;
+	int cacheNumber() default 1000;
 
 	/**
 	 * 是否自适应宽度，默认开启<br/>

@@ -458,7 +458,7 @@ public class ExcelWriter {
 	 * @param datas
 	 *            数据
 	 */
-	public static void writeExistsExcelData(String fromExcelPath, String toExcelPath, WriteData... datas) {
+	public static void writeByCoordinate(String fromExcelPath, String toExcelPath, WriteData... datas) {
 		if (fromExcelPath == null) {
 			throw new IllegalArgumentException("fromExcelPath is null");
 		}
@@ -540,7 +540,7 @@ public class ExcelWriter {
 						if (cell == null) {
 							cell = row.createCell(columnIndex);
 						}
-						ExcelWriteUtils.write(cell, data, data.getExpress());
+						ExcelWriteUtils.write(cell, data.getData(), data.getExpress());
 					}
 				}
 			}

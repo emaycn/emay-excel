@@ -40,7 +40,7 @@ public class SheetSchema {
 		if (dataClass.isAnnotationPresent(ExcelSheet.class)) {
 			ExcelSheet sheet = dataClass.getAnnotation(ExcelSheet.class);
 			this.setSheetSchemaParams(sheet);
-			Field[] fields = dataClass.getFields();
+			Field[] fields = dataClass.getDeclaredFields();
 			for (Field field : fields) {
 				if (field.isAnnotationPresent(ExcelColumn.class)) {
 					this.setColumnSchema(field.getName(), field.getAnnotation(ExcelColumn.class));

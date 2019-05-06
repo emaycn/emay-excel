@@ -32,17 +32,27 @@ public class ExcelTest {
 
 	public static String xlsPath;
 	public static String xlsxPath;
+	public static String xlsPathTo;
+	public static String xlsxPathTo;
 
 	private static List<Person> datas = new ArrayList<Person>(7);
 	private static List<String> titles = new ArrayList<String>(7);
+
+	private static WriteData[] writedDatas = new WriteData[8];
+
+	private static int[][] coordinates = new int[8][];
 
 	@BeforeClass
 	public static void before() {
 		String dirPath = System.getProperty("user.dir") + File.separator;
 		xlsPath = dirPath + File.separatorChar + "exceltest.xls";
 		xlsxPath = dirPath + File.separatorChar + "exceltest.xlsx";
+		xlsPathTo = dirPath + File.separatorChar + "exceltest.to.xls";
+		xlsxPathTo = dirPath + File.separatorChar + "exceltest.to.xlsx";
 		new File(xlsPath).delete();
 		new File(xlsxPath).delete();
+		new File(xlsPathTo).delete();
+		new File(xlsxPathTo).delete();
 
 		titles.add("年龄");
 		titles.add("名字");
@@ -56,6 +66,19 @@ public class ExcelTest {
 		datas.add(new Person(Integer.MAX_VALUE, null, new Date(System.currentTimeMillis() / 10000L), 2345678901234L, 1.0, false, new BigDecimal("99.99123")));
 		// Excel支持的数字最大为15位，超过15位会失去精度，所以存储时要转成文本存储。
 		datas.add(new Person(79, "" + Long.MAX_VALUE, new Date(System.currentTimeMillis() - 1000L * 6000L), 345678901234L, 2.3332, true, new BigDecimal(23444.3123d)));
+
+		writedDatas[0] = new WriteData(0, 0, 1, "001", null);
+		writedDatas[1] = new WriteData(0, 1, 2, "012", null);
+		writedDatas[2] = new WriteData(0, 2, 3, "023", null);
+		writedDatas[3] = new WriteData(0, 3, 4, "034", null);
+		writedDatas[4] = new WriteData(0, 5, 5, "055", null);
+		writedDatas[5] = new WriteData(1, 0, 1, "101", null);
+		writedDatas[6] = new WriteData(1, 4, 3, "143", null);
+		writedDatas[7] = new WriteData(2, 0, 1, "201", null);
+
+		for (int i = 0; i < writedDatas.length; i++) {
+			coordinates[i] = writedDatas[i].getCoordinate();
+		}
 	}
 
 	private void check(List<Person> list) {
@@ -135,23 +158,32 @@ public class ExcelTest {
 		check(list);
 	}
 
+	@Test
 	public void writeExists() {
-		WriteData[] datas = new WriteData[10];
-		datas[0] = new WriteData(0, 0, 1, "你好001", null);
-		datas[1] = new WriteData(0, 1, 2, "你好012", null);
-		datas[2] = new WriteData(0, 2, 3, "你好023", null);
-		datas[3] = new WriteData(0, 3, 4, "你好034", null);
-		datas[4] = new WriteData(0, 5, 5, "你好055", null);
-		datas[5] = new WriteData(1, 0, 1, "你好101", null);
-		datas[6] = new WriteData(1, 4, 3, "你好143", null);
-		datas[7] = new WriteData(2, 0, 1, "你好201", null);
-		ExcelWriter.writeExistsExcelData("C:\\Users\\Frank\\Desktop\\123.xlsx", "C:\\Users\\Frank\\Desktop\\222.xlsx", datas);
+		ExcelWriter.write(xlsxPath, new WriteNormalHandler(titles, datas));
+		ExcelWriter.writeByCoordinate(xlsxPath, xlsxPathTo, writedDatas);
+		String[] resus = ExcelReader.readStringByCoordinate(xlsxPathTo, coordinates);
+		for (int i = 0; i < 8; i++) {
+			Assert.assertEquals(resus[i], writedDatas[i].getData());
+		}
+	}
+
+	@Test
+	public void writeXlsExists() {
+		ExcelWriter.write(xlsPath, new WriteNormalHandler(titles, datas));
+		ExcelWriter.writeByCoordinate(xlsPath, xlsPathTo, writedDatas);
+		String[] resus = ExcelReader.readStringByCoordinate(xlsPathTo, coordinates);
+		for (int i = 0; i < 8; i++) {
+			Assert.assertEquals(resus[i], writedDatas[i].getData());
+		}
 	}
 
 	@After
 	public void after() {
 		new File(xlsPath).delete();
 		new File(xlsxPath).delete();
+		new File(xlsPathTo).delete();
+		new File(xlsxPathTo).delete();
 	}
 
 }

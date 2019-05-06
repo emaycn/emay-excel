@@ -12,7 +12,7 @@ import cn.emay.excel.common.schema.annotation.ExcelSheet;
  * @author Frank
  *
  */
-@ExcelSheet
+@ExcelSheet(isNeedBorder= true)
 public class Person {
 
 	/**

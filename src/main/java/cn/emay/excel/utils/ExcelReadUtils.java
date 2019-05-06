@@ -339,7 +339,21 @@ public class ExcelReadUtils {
 		}
 	}
 
-	public static Object read(Class<?> fieldClass, int formatIndex, String value, String express) {
+	/**
+	 * 读取数据
+	 * 
+	 * @param fieldClass
+	 *            读取的数据类型
+	 * @param formatIndex
+	 *            Excel数据类型
+	 * @param value
+	 *            数据
+	 * @param express
+	 *            数据格式
+	 * @return 数据(读取日期时：如果是String写入，则根据此表达式进行格式化读取；读取Double、BigDecimal时，是保留的小数点后数字个数；)
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T read(Class<T> fieldClass, int formatIndex, String value, String express) {
 		if (value == null) {
 			return null;
 		}
@@ -359,10 +373,22 @@ public class ExcelReadUtils {
 		} else if (fieldClass.isAssignableFrom(String.class)) {
 			obj = readString(value);
 		}
-		return obj;
+		return (T) obj;
 	}
 
-	public static Object read(Class<?> fieldClass, Cell cell, String express) {
+	/**
+	 * 读取数据
+	 * 
+	 * @param fieldClass
+	 *            读取的数据类型
+	 * @param cell
+	 *            单元格
+	 * @param express
+	 *            数据格式
+	 * @return 数据(读取日期时：如果是String写入，则根据此表达式进行格式化读取；读取Double、BigDecimal时，是保留的小数点后数字个数；)
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T read(Class<T> fieldClass, Cell cell, String express) {
 		if (cell == null) {
 			return null;
 		}
@@ -382,7 +408,7 @@ public class ExcelReadUtils {
 		} else if (fieldClass.isAssignableFrom(String.class)) {
 			obj = readString(cell);
 		}
-		return obj;
+		return (T) obj;
 	}
 
 }

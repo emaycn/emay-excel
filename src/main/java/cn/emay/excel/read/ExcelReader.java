@@ -1,10 +1,20 @@
 package cn.emay.excel.read;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.common.schema.base.SheetSchema;
@@ -16,6 +26,7 @@ import cn.emay.excel.read.handler.SheetDataHandler;
 import cn.emay.excel.read.reader.SheetReader;
 import cn.emay.excel.read.reader.impl.SchemaSheetReader;
 import cn.emay.excel.utils.ExcelPathInfo;
+import cn.emay.excel.utils.ExcelReadUtils;
 import cn.emay.excel.utils.ExcelUtils;
 
 /**
@@ -473,6 +484,127 @@ public class ExcelReader {
 	 */
 	public static void readBySheetNames(InputStream is, ExcelVersion version, Map<String, SheetReader> readersByName) {
 		getReader(version).readBySheetNames(is, readersByName);
+	}
+
+	/**
+	 * 按照坐标读取字符串类型数据<br/>
+	 * 大数据量的Excel禁用
+	 * 
+	 * @param excelPath
+	 *            Excel路径
+	 * @param coordinates
+	 *            坐标集合
+	 * @return
+	 */
+	public static String[] readStringByCoordinate(String excelPath, int[]... coordinates) {
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
+		return readStringByCoordinate(parser.getInputStream(), parser.getVersion(), coordinates);
+	}
+
+	/**
+	 * 按照坐标读取字符串类型数据<br/>
+	 * 大数据量的Excel禁用
+	 * 
+	 * @param is
+	 *            输入流
+	 * @param version
+	 *            Excel版本
+	 * @param coordinates
+	 *            坐标集合
+	 * @return
+	 */
+	public static String[] readStringByCoordinate(InputStream is, ExcelVersion version, int[]... coordinates) {
+		if (coordinates == null) {
+			throw new IllegalArgumentException("coordinates is null");
+		}
+		String[] datas = new String[coordinates.length];
+		int index = 0;
+		Map<Integer, Map<Integer, Map<Integer, String>>> dataByCoordinate = new TreeMap<>();
+		for (int[] coordinate : coordinates) {
+			if (coordinate == null) {
+				continue;
+			}
+			if (coordinate.length < 3) {
+				continue;
+			}
+			int sheetIndex = coordinate[0];
+			int rowIndex = coordinate[1];
+			int columnIndex = coordinate[2];
+			if (sheetIndex < 0) {
+				continue;
+			}
+			if (rowIndex < 0) {
+				continue;
+			}
+			if (columnIndex < 0) {
+				continue;
+			}
+			Map<Integer, Map<Integer, String>> oneSheetMap = dataByCoordinate.get(sheetIndex);
+			if (oneSheetMap == null) {
+				oneSheetMap = new TreeMap<>();
+				dataByCoordinate.put(sheetIndex, oneSheetMap);
+			}
+			Map<Integer, String> oneRowMap = oneSheetMap.get(rowIndex);
+			if (oneRowMap == null) {
+				oneRowMap = new TreeMap<>();
+				oneSheetMap.put(rowIndex, oneRowMap);
+			}
+			oneRowMap.put(columnIndex, null);
+		}
+		Workbook workbook = null;
+		try {
+			if (ExcelVersion.XLSX.equals(version)) {
+				workbook = new XSSFWorkbook(is);
+			} else {
+				workbook = new HSSFWorkbook(is);
+			}
+			int maxSheetIndex = workbook.getNumberOfSheets() - 1;
+			for (Integer sheetIndex : dataByCoordinate.keySet()) {
+				if (sheetIndex > maxSheetIndex) {
+					continue;
+				}
+				Sheet sheet = workbook.getSheetAt(sheetIndex);
+				if (sheet == null) {
+					continue;
+				}
+				Map<Integer, Map<Integer, String>> oneSheetMap = dataByCoordinate.get(sheetIndex);
+				for (Integer rowIndex : oneSheetMap.keySet()) {
+					Row row = sheet.getRow(rowIndex);
+					if (row == null) {
+						continue;
+					}
+					Map<Integer, String> oneRowMap = oneSheetMap.get(rowIndex);
+					for (Integer columnIndex : oneRowMap.keySet()) {
+						Cell cell = row.getCell(columnIndex);
+						if (cell == null) {
+							continue;
+						}
+						datas[index++] = ExcelReadUtils.read(String.class, cell, null);
+					}
+				}
+			}
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+					if (workbook.getClass().isAssignableFrom(SXSSFWorkbook.class)) {
+						((SXSSFWorkbook) workbook).dispose();
+					}
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+		}
+		return datas;
 	}
 
 	/**
