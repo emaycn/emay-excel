@@ -63,13 +63,13 @@ public class ExcelServletSupport {
 	 * @param datas
 	 *            写Sheet的数据处理器（数据要实现@ExcelSheet、@ExcelColumn注解）
 	 */
-	public static void outputExcelFirstSheet(HttpServletResponse response, String excelName, ExcelVersion version, SheetDataGetter<?> datas) {
+	public static void outputExcelFirstSheet(HttpServletResponse response, String excelName, ExcelVersion version, SheetDataGetter<?>... datas) {
 		try {
 			if (datas == null) {
 				throw new IllegalArgumentException("excel datas is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeFirstSheet(response.getOutputStream(), version, datas);
+			ExcelWriter.write(response.getOutputStream(), version, datas);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {
@@ -93,13 +93,13 @@ public class ExcelServletSupport {
 	 * @param datas
 	 *            写Sheet的数据（数据要实现@ExcelSheet、@ExcelColumn注解）
 	 */
-	public static void outputExcelFirstSheet(HttpServletResponse response, String excelName, ExcelVersion version, List<?> datas) {
+	public static void outputExcelFirstSheet(HttpServletResponse response, String excelName, ExcelVersion version, List<?>... datas) {
 		try {
 			if (datas == null) {
 				throw new IllegalArgumentException("excel datas is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeFirstSheet(response.getOutputStream(), version, datas);
+			ExcelWriter.write(response.getOutputStream(), version, datas);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {

@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.common.schema.base.SheetSchema;
+import cn.emay.excel.utils.ExcelWriteUtils;
 import cn.emay.excel.write.data.SchemaSheetDataGetter;
 import cn.emay.excel.write.data.SheetDataGetter;
 import cn.emay.excel.write.data.WriteData;
@@ -42,115 +41,179 @@ public class ExcelWriter {
 	public final static int DEFAULT_CACHE_NUM = 1000;
 
 	/**
-	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
+	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
 	 * 
-	 * @param excelabsolutePath
+	 * @param excelPath
 	 *            Excel写入的全路径
 	 * @param datas
 	 *            数据集,按照顺序写入
 	 */
-	public static <D> void writeFirstSheet(String excelAbsolutePath, List<D> datas) {
-		if (datas == null || datas.size() == 0) {
-			throw new IllegalArgumentException("datas is null");
-		}
-		@SuppressWarnings("unchecked")
-		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
-		writeFirstSheet(excelAbsolutePath, new ListSchemaSheetDataGetter<D>(datas, dataClass));
+	public static void write(String excelPath, List<?>... datas) {
+		write(null, null, excelPath, datas);
 	}
 
 	/**
 	 * 把Excel写入输出流<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
 	 * 
 	 * @param os
 	 *            输出流
 	 * @param version
 	 *            版本
 	 * @param datas
-	 *            写入的数据集
+	 *            写入的数据集,按照顺序写入
 	 */
-	public static <D> void writeFirstSheet(OutputStream os, ExcelVersion version, List<D> datas) {
-		if (datas == null || datas.size() == 0) {
-			throw new IllegalArgumentException("datas is null");
-		}
-		@SuppressWarnings("unchecked")
-		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
-		writeFirstSheet(os, version, new ListSchemaSheetDataGetter<D>(datas, dataClass));
+	public static void write(OutputStream os, ExcelVersion version, List<?>... datas) {
+		write(os, version, null, datas);
 	}
 
 	/**
-	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
-	 * 
-	 * @param excelabsolutePath
-	 *            Excel写入的全路径
-	 * @param datas
-	 *            数据集,按照顺序写入
-	 */
-	public static <D> void writeFirstSheet(String excelAbsolutePath, SheetDataGetter<D> datas) {
-		if (datas == null) {
-			throw new IllegalArgumentException("datas is null");
-		}
-		SheetSchema<D> schema = new SheetSchema<D>(datas.getDataClass());
-		SheetWriter handler = new SchemaSheetWriter<D>(schema, datas);
-		write(excelAbsolutePath, schema.getSheetSchemaParams().getCacheNumber(), handler);
-	}
-
-	/**
-	 * 把Excel写入输出流<br/>
+	 * 整合方法
 	 * 
 	 * @param os
 	 *            输出流
 	 * @param version
 	 *            版本
+	 * @param excelPath
+	 *            Excel写入的全路径
 	 * @param datas
-	 *            写入的数据集
-	 */
-	public static <D> void writeFirstSheet(OutputStream os, ExcelVersion version, SheetDataGetter<D> datas) {
-		if (datas == null) {
-			throw new IllegalArgumentException("datas is null");
-		}
-		SheetSchema<D> schema = new SheetSchema<D>(datas.getDataClass());
-		SheetWriter handler = new SchemaSheetWriter<D>(schema, datas);
-		write(os, version, schema.getSheetSchemaParams().getCacheNumber(), handler);
-	}
-
-	/**
-	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
-	 * 
-	 * @param excelabsolutePath
-	 *            Excel写入的全路径
-	 * @param dataWriterByCustomSchema
-	 *            数据来源集合，每一个数据来源写入一个sheet
-	 */
-	public static <D> void writeFirstSheet(String excelAbsolutePath, SheetSchema<D> sheetSchema, SheetDataGetter<D> dataWriter) {
-		SheetWriter handler = new SchemaSheetWriter<D>(sheetSchema, dataWriter);
-		write(excelAbsolutePath, sheetSchema.getSheetSchemaParams().getCacheNumber(), handler);
-	}
-
-	/**
-	 * 把Excel写入输出流<br/>
-	 * 
-	 * @param os
-	 *            输出流
-	 * @param version
-	 *            版本
-	 * @param dataWriterByCustomSchema
-	 *            数据来源集合，每一个数据来源写入一个sheet
-	 */
-	public static <D> void writeFirstSheet(OutputStream os, ExcelVersion version, SheetSchema<D> sheetSchema, SheetDataGetter<D> dataWriter) {
-		SheetWriter handler = new SchemaSheetWriter<D>(sheetSchema, dataWriter);
-		write(os, version, sheetSchema.getSheetSchemaParams().getCacheNumber(), handler);
-	}
-
-	/**
-	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
-	 * 
-	 * @param excelabsolutePath
-	 *            Excel写入的全路径
-	 * @param dataWriterByCustomSchema
-	 *            数据来源集合，每一个数据来源写入一个sheet
+	 *            写入的数据集,按照顺序写入
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <D> void write(String excelAbsolutePath, SchemaSheetDataGetter... datas) {
+	private static void write(OutputStream os, ExcelVersion version, String excelPath, List<?>... datas) {
+		if (datas == null) {
+			throw new IllegalArgumentException("datas is null");
+		}
+		if (datas.length == 0) {
+			throw new IllegalArgumentException("datas is empty");
+		}
+		SheetWriter[] handlers = new SheetWriter[datas.length];
+		int cacheNumber = DEFAULT_CACHE_NUM;
+		for (int i = 0; i < datas.length; i++) {
+			List<?> list = datas[i];
+			Class<?> dataClass = list.get(0).getClass();
+			SheetDataGetter<?> dataWriter = new ListSchemaSheetDataGetter(list, dataClass);
+			SheetSchema<?> sheetSchema = new SheetSchema<>(dataClass);
+			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
+			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
+		}
+		if (excelPath != null) {
+			write(excelPath, cacheNumber, handlers);
+		} else {
+			write(os, version, cacheNumber, handlers);
+		}
+	}
+
+	/**
+	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param excelPath
+	 *            Excel写入的全路径
+	 * @param datas
+	 *            数据集,按照顺序写入
+	 */
+	public static void write(String excelPath, SheetDataGetter<?>... datas) {
+		write(null, null, excelPath, datas);
+	}
+
+	/**
+	 * 把Excel写入输出流<br/>
+	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param datas
+	 *            写入的数据集,按照顺序写入
+	 */
+	public static void write(OutputStream os, ExcelVersion version, SheetDataGetter<?>... datas) {
+		write(os, version, null, datas);
+	}
+
+	/**
+	 * 整合方法
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param excelPath
+	 *            Excel写入的全路径
+	 * @param datas
+	 *            写入的数据集,按照顺序写入
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static void write(OutputStream os, ExcelVersion version, String excelPath, SheetDataGetter<?>... datas) {
+		if (datas == null) {
+			throw new IllegalArgumentException("datas is null");
+		}
+		if (datas.length == 0) {
+			throw new IllegalArgumentException("datas is empty");
+		}
+		SheetWriter[] handlers = new SheetWriter[datas.length];
+		int cacheNumber = DEFAULT_CACHE_NUM;
+		for (int i = 0; i < datas.length; i++) {
+			SheetDataGetter<?> dataWriter = datas[i];
+			SheetSchema<?> sheetSchema = new SheetSchema<>(datas[i].getDataClass());
+			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
+			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
+		}
+		if (excelPath != null) {
+			write(excelPath, cacheNumber, handlers);
+		} else {
+			write(os, version, cacheNumber, handlers);
+		}
+	}
+
+	/**
+	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
+	 * 
+	 * @param excelPath
+	 *            Excel写入的全路径
+	 * @param dataWriterByCustomSchema
+	 *            数据来源集合，每一个数据来源写入一个sheet
+	 */
+	public static void write(String excelPath, SchemaSheetDataGetter<?>... datas) {
+		write(null, null, excelPath, datas);
+	}
+
+	/**
+	 * 把Excel写入输出流<br/>
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param dataWriterByCustomSchema
+	 *            数据来源集合，每一个数据来源写入一个sheet
+	 */
+	public static void write(OutputStream os, ExcelVersion version, SchemaSheetDataGetter<?>... datas) {
+		write(os, version, null, datas);
+	}
+
+	/**
+	 * 整合方法
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param excelPath
+	 *            Excel写入的全路径
+	 * @param datas
+	 *            写入的数据集,按照顺序写入
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static void write(OutputStream os, ExcelVersion version, String excelPath, SchemaSheetDataGetter<?>... datas) {
+		if (datas == null) {
+			throw new IllegalArgumentException("datas is null");
+		}
+		if (datas.length == 0) {
+			throw new IllegalArgumentException("datas is empty");
+		}
 		SheetWriter[] handlers = new SheetWriter[datas.length];
 		int cacheNumber = DEFAULT_CACHE_NUM;
 		for (int i = 0; i < datas.length; i++) {
@@ -159,69 +222,56 @@ public class ExcelWriter {
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
 			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
 		}
-		write(excelAbsolutePath, cacheNumber, handlers);
-	}
-
-	/**
-	 * 把Excel写入输出流<br/>
-	 * 
-	 * @param os
-	 *            输出流
-	 * @param version
-	 *            版本
-	 * @param dataWriterByCustomSchema
-	 *            数据来源集合，每一个数据来源写入一个sheet
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void write(OutputStream os, ExcelVersion version, SchemaSheetDataGetter... datas) {
-		SheetWriter[] handlers = new SheetWriter[datas.length];
-		int cacheNumber = DEFAULT_CACHE_NUM;
-		for (int i = 0; i < datas.length; i++) {
-			SheetDataGetter<?> dataWriter = datas[i];
-			SheetSchema<?> sheetSchema = datas[i].getSheetSchema();
-			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
-			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
+		if (excelPath != null) {
+			write(excelPath, cacheNumber, handlers);
+		} else {
+			write(os, version, cacheNumber, handlers);
 		}
-		write(os, version, cacheNumber, handlers);
 	}
 
 	/**
 	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
 	 * 
-	 * @param excelabsolutePath
+	 * @param excelPath
 	 *            Excel写入的全路径
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	public static void write(String excelAbsolutePath, SheetWriter... handlers) {
-		write(excelAbsolutePath, DEFAULT_CACHE_NUM, handlers);
+	public static void write(String excelPath, SheetWriter... handlers) {
+		write(excelPath, DEFAULT_CACHE_NUM, handlers);
 	}
 
 	/**
 	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
 	 * 
-	 * @param excelabsolutePath
+	 * @param excelPath
 	 *            Excel写入的全路径
 	 * @param cacheNumber
 	 *            在内存中的缓存数据行数(XLSX适用)【小于100直接使用先写入内存再全部刷到磁盘的方式;大于100则采用当内存中超过CacheNumber条后，刷新到磁盘的方式】
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	public static void write(String excelAbsolutePath, int cacheNumber, SheetWriter... handlers) {
-		if (excelAbsolutePath == null) {
-			throw new IllegalArgumentException("excelAbsolutePath is null");
+	public static void write(String excelPath, int cacheNumber, SheetWriter... handlers) {
+		if (excelPath == null) {
+			throw new IllegalArgumentException("excelPath is null");
+		}
+		if (handlers == null) {
+			throw new IllegalArgumentException("handlers is null");
+		}
+		if (handlers.length == 0) {
+			throw new IllegalArgumentException("handlers is empty");
 		}
 		ExcelVersion version = null;
-		if (excelAbsolutePath.endsWith(ExcelVersion.XLS.getSuffix())) {
+		if (excelPath.endsWith(ExcelVersion.XLS.getSuffix())) {
 			version = ExcelVersion.XLS;
-		} else if (excelAbsolutePath.endsWith(ExcelVersion.XLSX.getSuffix())) {
+		} else if (excelPath.endsWith(ExcelVersion.XLSX.getSuffix())) {
 			version = ExcelVersion.XLSX;
 		} else {
-			throw new IllegalArgumentException("is not excel file  : " + excelAbsolutePath);
+			throw new IllegalArgumentException("is not excel file  : " + excelPath);
 		}
-		File file = new File(excelAbsolutePath);
+		File file = new File(excelPath);
 		if (file.exists()) {
-			throw new IllegalArgumentException("excelAbsolutePath[" + excelAbsolutePath + "]  is exists");
+			throw new IllegalArgumentException("excelPath[" + excelPath + "]  is exists");
 		}
 		boolean error = false;
 		FileOutputStream fos = null;
@@ -230,7 +280,7 @@ public class ExcelWriter {
 			if (!parent.exists()) {
 				parent.mkdirs();
 			}
-			fos = new FileOutputStream(excelAbsolutePath);
+			fos = new FileOutputStream(excelPath);
 			write(fos, version, cacheNumber, handlers);
 		} catch (Exception e) {
 			error = true;
@@ -277,7 +327,7 @@ public class ExcelWriter {
 	 * @param handlers
 	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
 	 */
-	private static void write(OutputStream os, ExcelVersion version, int cacheNumber, SheetWriter... handlers) {
+	public static void write(OutputStream os, ExcelVersion version, int cacheNumber, SheetWriter... handlers) {
 		if (os == null) {
 			throw new IllegalArgumentException("OutputStream is null");
 		}
@@ -490,29 +540,7 @@ public class ExcelWriter {
 						if (cell == null) {
 							cell = row.createCell(columnIndex);
 						}
-						if (data.getData().getClass().isAssignableFrom(int.class)) {
-							ExcelWriterHelper.writeInt(cell, (int) data.getData());
-						} else if (data.getData().getClass().isAssignableFrom(Integer.class)) {
-							ExcelWriterHelper.writeInt(cell, (Integer) data.getData());
-						} else if (data.getData().getClass().isAssignableFrom(double.class)) {
-							ExcelWriterHelper.writeDouble(cell, (double) data.getData(), data.getExpressInt());
-						} else if (data.getData().getClass().isAssignableFrom(Double.class)) {
-							ExcelWriterHelper.writeDouble(cell, (Double) data.getData(), data.getExpressInt());
-						} else if (data.getData().getClass().isAssignableFrom(long.class)) {
-							ExcelWriterHelper.writeLong(cell, (long) data.getData());
-						} else if (data.getData().getClass().isAssignableFrom(Long.class)) {
-							ExcelWriterHelper.writeLong(cell, (Long) data.getData());
-						} else if (data.getData().getClass().isAssignableFrom(BigDecimal.class)) {
-							ExcelWriterHelper.writeBigDecimal(cell, (BigDecimal) data.getData(), data.getExpressInt());
-						} else if (data.getData().getClass().isAssignableFrom(Date.class)) {
-							ExcelWriterHelper.writeDate(cell, (Date) data.getData(), data.getExpress());
-						} else if (data.getData().getClass().isAssignableFrom(boolean.class)) {
-							ExcelWriterHelper.writeBoolean(cell, (boolean) data.getData());
-						} else if (data.getData().getClass().isAssignableFrom(Boolean.class)) {
-							ExcelWriterHelper.writeBoolean(cell, (Boolean) data.getData());
-						} else if (data.getData().getClass().isAssignableFrom(String.class)) {
-							ExcelWriterHelper.writeString(cell, (String) data.getData());
-						}
+						ExcelWriteUtils.write(cell, data, data.getExpress());
 					}
 				}
 			}

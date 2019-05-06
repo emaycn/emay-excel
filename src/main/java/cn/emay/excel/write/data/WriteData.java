@@ -92,22 +92,6 @@ public class WriteData {
 		return express;
 	}
 
-	/**
-	 * 获取int类型的表达式
-	 * 
-	 * @return
-	 */
-	public int getExpressInt() {
-		int num = -1;
-		if (express != null && !"".equalsIgnoreCase(express.trim())) {
-			try {
-				return Integer.parseInt(express);
-			} catch (Exception e) {
-			}
-		}
-		return num;
-	}
-
 	public void setExpress(String express) {
 		this.express = express;
 	}

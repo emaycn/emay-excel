@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 
 import cn.emay.excel.common.Person;
-import cn.emay.excel.read.ExcelReadHelper;
 import cn.emay.excel.read.reader.SheetReader;
+import cn.emay.excel.utils.ExcelReadUtils;
 
 /**
  * 
@@ -44,29 +44,29 @@ public class ReadNormalHandler implements SheetReader {
 	@Override
 	public void handleXlsxCell(int rowIndex, int columnIndex, int formatIndex, String value) {
 		if (rowIndex == 0) {
-			titles.add(ExcelReadHelper.readString(value));
+			titles.add(ExcelReadUtils.readString(value));
 		} else {
 			switch (columnIndex) {
 			case 0:
-				curr.setAge(ExcelReadHelper.readInteger(value));
+				curr.setAge(ExcelReadUtils.readInteger(value));
 				break;
 			case 1:
-				curr.setName(ExcelReadHelper.readString(value));
+				curr.setName(ExcelReadUtils.readString(value));
 				break;
 			case 2:
-				curr.setBrith(ExcelReadHelper.readDate(formatIndex, value, "yyyy-MM-dd HH:mm:ss"));
+				curr.setBrith(ExcelReadUtils.readDate(formatIndex, value, "yyyy-MM-dd HH:mm:ss"));
 				break;
 			case 3:
-				curr.setCreateTime(ExcelReadHelper.readLong(value));
+				curr.setCreateTime(ExcelReadUtils.readLong(value));
 				break;
 			case 4:
-				curr.setScore(ExcelReadHelper.readDouble(value, 2));
+				curr.setScore(ExcelReadUtils.readDouble(value, 2));
 				break;
 			case 5:
-				curr.setHasGlass(ExcelReadHelper.readBoolean(value));
+				curr.setHasGlass(ExcelReadUtils.readBoolean(value));
 				break;
 			case 6:
-				curr.setMoney(ExcelReadHelper.readBigDecimal(value, 4));
+				curr.setMoney(ExcelReadUtils.readBigDecimal(value, 4));
 				break;
 			default:
 				break;
@@ -77,29 +77,29 @@ public class ReadNormalHandler implements SheetReader {
 	@Override
 	public void handleXlsCell(int rowIndex, int columnIndex, Cell cell) {
 		if (rowIndex == 0) {
-			titles.add(ExcelReadHelper.readString(cell));
+			titles.add(ExcelReadUtils.readString(cell));
 		} else {
 			switch (columnIndex) {
 			case 0:
-				curr.setAge(ExcelReadHelper.readInteger(cell));
+				curr.setAge(ExcelReadUtils.readInteger(cell));
 				break;
 			case 1:
-				curr.setName(ExcelReadHelper.readString(cell));
+				curr.setName(ExcelReadUtils.readString(cell));
 				break;
 			case 2:
-				curr.setBrith(ExcelReadHelper.readDate(cell, "yyyy-MM-dd HH:mm:ss"));
+				curr.setBrith(ExcelReadUtils.readDate(cell, "yyyy-MM-dd HH:mm:ss"));
 				break;
 			case 3:
-				curr.setCreateTime(ExcelReadHelper.readLong(cell));
+				curr.setCreateTime(ExcelReadUtils.readLong(cell));
 				break;
 			case 4:
-				curr.setScore(ExcelReadHelper.readDouble(cell, 2));
+				curr.setScore(ExcelReadUtils.readDouble(cell, 2));
 				break;
 			case 5:
-				curr.setHasGlass(ExcelReadHelper.readBoolean(cell));
+				curr.setHasGlass(ExcelReadUtils.readBoolean(cell));
 				break;
 			case 6:
-				curr.setMoney(ExcelReadHelper.readBigDecimal(cell, 4));
+				curr.setMoney(ExcelReadUtils.readBigDecimal(cell, 4));
 				break;
 			default:
 				break;

@@ -1,8 +1,6 @@
 package cn.emay.excel.read.reader.impl;
 
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,10 +10,11 @@ import org.apache.poi.ss.usermodel.Cell;
 
 import cn.emay.excel.common.schema.base.ColumnSchema;
 import cn.emay.excel.common.schema.base.SheetSchema;
-import cn.emay.excel.read.ExcelReadHelper;
 import cn.emay.excel.read.handler.SchemaSheetDataHandler;
 import cn.emay.excel.read.handler.SheetDataHandler;
 import cn.emay.excel.read.reader.SheetReader;
+import cn.emay.excel.utils.ExcelReadUtils;
+import cn.emay.excel.utils.ExcelUtils;
 
 /**
  * 定义方式读取
@@ -134,13 +133,13 @@ public class SchemaSheetReader<D> implements SheetReader {
 		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
 			return;
 		}
-		curData = schema.newData();
+		curData = ExcelUtils.newData(schema.getDataClass());
 	}
 
 	@Override
 	public void handleXlsCell(int rowIndex, int columnIndex, Cell cell) {
 		if (readByIndex == false && rowIndex == this.schema.getSheetSchemaParams().getReadTitleRowIndex()) {
-			String title = ExcelReadHelper.readString(cell);
+			String title = ExcelReadUtils.readString(cell);
 			colTitles.put(columnIndex, title == null ? "" : title);
 		}
 		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
@@ -159,28 +158,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 		}
 		Object obj = null;
 		try {
-			if (field.getType().isAssignableFrom(int.class) || field.getType().isAssignableFrom(Integer.class)) {
-				obj = ExcelReadHelper.readInteger(cell);
-			} else if (field.getType().isAssignableFrom(Double.class) || field.getType().isAssignableFrom(double.class)) {
-				obj = ExcelReadHelper.readDouble(cell, columnSchema.getExpressInt());
-			} else if (field.getType().isAssignableFrom(Long.class) || field.getType().isAssignableFrom(long.class)) {
-				obj = ExcelReadHelper.readLong(cell);
-			} else if (field.getType().isAssignableFrom(BigDecimal.class)) {
-				obj = ExcelReadHelper.readBigDecimal(cell, columnSchema.getExpressInt());
-			} else if (field.getType().isAssignableFrom(Date.class)) {
-				obj = ExcelReadHelper.readDate(cell, columnSchema.getExpress());
-			} else if (field.getType().isAssignableFrom(Boolean.class) || field.getType().isAssignableFrom(boolean.class)) {
-				obj = ExcelReadHelper.readBoolean(cell);
-			} else if (field.getType().isAssignableFrom(String.class)) {
-				obj = ExcelReadHelper.readString(cell);
-			}
+			obj = ExcelReadUtils.read(field.getType(), cell, columnSchema.getExpress());
 			if (obj != null) {
 				field.set(curData, obj);
 			}
-		} catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException(
-					"sheet(" + curSheetName + "):[" + curSheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] read[" + obj + "] and set[" + field.getName() + "] error", e);
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			throw new IllegalArgumentException(
 					"sheet(" + curSheetName + "):[" + curSheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] read[" + obj + "] and set[" + field.getName() + "] error", e);
 		}
@@ -189,7 +171,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 	@Override
 	public void handleXlsxCell(int rowIndex, int columnIndex, int formatIndex, String value) {
 		if (readByIndex == false && rowIndex == this.schema.getSheetSchemaParams().getReadTitleRowIndex()) {
-			String title = ExcelReadHelper.readString(value);
+			String title = ExcelReadUtils.readString(value);
 			colTitles.put(columnIndex, title == null ? "" : title);
 		}
 		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
@@ -208,28 +190,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 		}
 		Object obj = null;
 		try {
-			if (field.getType().isAssignableFrom(int.class) || field.getType().isAssignableFrom(Integer.class)) {
-				obj = ExcelReadHelper.readInteger(value);
-			} else if (field.getType().isAssignableFrom(Double.class) || field.getType().isAssignableFrom(double.class)) {
-				obj = ExcelReadHelper.readDouble(value, columnSchema.getExpressInt());
-			} else if (field.getType().isAssignableFrom(Long.class) || field.getType().isAssignableFrom(long.class)) {
-				obj = ExcelReadHelper.readLong(value);
-			} else if (field.getType().isAssignableFrom(BigDecimal.class)) {
-				obj = ExcelReadHelper.readBigDecimal(value, columnSchema.getExpressInt());
-			} else if (field.getType().isAssignableFrom(Date.class)) {
-				obj = ExcelReadHelper.readDate(formatIndex, value, columnSchema.getExpress());
-			} else if (field.getType().isAssignableFrom(Boolean.class) || field.getType().isAssignableFrom(boolean.class)) {
-				obj = ExcelReadHelper.readBoolean(value);
-			} else if (field.getType().isAssignableFrom(String.class)) {
-				obj = ExcelReadHelper.readString(value);
-			}
+			obj = ExcelReadUtils.read(field.getType(), formatIndex, value, columnSchema.getExpress());
 			if (obj != null) {
 				field.set(curData, obj);
 			}
-		} catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException(
-					"sheet(" + curSheetName + "):[" + curSheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] read[" + obj + "] and set[" + field.getName() + "] error", e);
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			throw new IllegalArgumentException(
 					"sheet(" + curSheetName + "):[" + curSheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] read[" + obj + "] and set[" + field.getName() + "] error", e);
 		}

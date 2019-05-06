@@ -199,7 +199,7 @@ public class ExcelReader {
 	 *            Excel表格定义读取器(handlers顺序号即为读取ExccelSheet的编号)
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void readByOrder(String excelPath, SchemaSheetDataHandler... handlers) {
+	public static void readByOrderWithSchema(String excelPath, SchemaSheetDataHandler... handlers) {
 		if (handlers == null) {
 			return;
 		}

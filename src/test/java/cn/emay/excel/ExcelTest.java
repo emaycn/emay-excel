@@ -105,7 +105,7 @@ public class ExcelTest {
 
 	@Test
 	public void dataXlsTest() {
-		ExcelWriter.writeFirstSheet(xlsPath, new PersonDataWriter(datas));
+		ExcelWriter.write(xlsPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
 		ExcelReader.readFirstSheet(xlsPath, red);
 		List<Person> list = red.getDatas();
@@ -114,7 +114,7 @@ public class ExcelTest {
 
 	@Test
 	public void dataXlsxTest() {
-		ExcelWriter.writeFirstSheet(xlsxPath, new PersonDataWriter(datas));
+		ExcelWriter.write(xlsxPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
 		ExcelReader.readFirstSheet(xlsxPath, red);
 		List<Person> list = red.getDatas();
@@ -123,14 +123,14 @@ public class ExcelTest {
 
 	@Test
 	public void schemaXlsTest() {
-		ExcelWriter.writeFirstSheet(xlsPath, datas);
+		ExcelWriter.write(xlsPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsPath, Person.class);
 		check(list);
 	}
 
 	@Test
 	public void schemaTest() {
-		ExcelWriter.writeFirstSheet(xlsxPath, datas);
+		ExcelWriter.write(xlsxPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsxPath, Person.class);
 		check(list);
 	}

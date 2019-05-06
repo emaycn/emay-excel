@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 import cn.emay.excel.common.Person;
-import cn.emay.excel.write.ExcelWriterHelper;
+import cn.emay.excel.utils.ExcelWriteUtils;
 import cn.emay.excel.write.writer.SheetWriter;
 
 /**
@@ -63,29 +63,29 @@ public class WriteNormalHandler implements SheetWriter {
 		style.setBorderRight(BorderStyle.THIN);
 		cell.setCellStyle(style);
 		if (rowIndex == 0) {
-			ExcelWriterHelper.writeString(cell, titles.get(columnIndex));
+			ExcelWriteUtils.writeString(cell, titles.get(columnIndex));
 		} else {
 			switch (columnIndex) {
 			case 0:
-				ExcelWriterHelper.writeInt(cell, curr.getAge());
+				ExcelWriteUtils.writeInt(cell, curr.getAge());
 				break;
 			case 1:
-				ExcelWriterHelper.writeString(cell, curr.getName());
+				ExcelWriteUtils.writeString(cell, curr.getName());
 				break;
 			case 2:
-				ExcelWriterHelper.writeDate(cell, curr.getBrith(), "yyyy-MM-dd HH:mm:ss");
+				ExcelWriteUtils.writeDate(cell, curr.getBrith(), "yyyy-MM-dd HH:mm:ss");
 				break;
 			case 3:
-				ExcelWriterHelper.writeLong(cell, curr.getCreateTime());
+				ExcelWriteUtils.writeLong(cell, curr.getCreateTime());
 				break;
 			case 4:
-				ExcelWriterHelper.writeDouble(cell, curr.getScore(), 2);
+				ExcelWriteUtils.writeDouble(cell, curr.getScore(), 2);
 				break;
 			case 5:
-				ExcelWriterHelper.writeBoolean(cell, curr.getHasGlass());
+				ExcelWriteUtils.writeBoolean(cell, curr.getHasGlass());
 				break;
 			case 6:
-				ExcelWriterHelper.writeBigDecimal(cell, curr.getMoney(), 4);
+				ExcelWriteUtils.writeBigDecimal(cell, curr.getMoney(), 4);
 				break;
 			default:
 				break;

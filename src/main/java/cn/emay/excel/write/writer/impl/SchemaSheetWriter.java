@@ -1,9 +1,7 @@
 package cn.emay.excel.write.writer.impl;
 
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import cn.emay.excel.common.schema.base.ColumnSchema;
 import cn.emay.excel.common.schema.base.SheetSchema;
-import cn.emay.excel.write.ExcelWriterHelper;
+import cn.emay.excel.utils.ExcelWriteUtils;
 import cn.emay.excel.write.data.SheetDataGetter;
 import cn.emay.excel.write.writer.SheetWriter;
 
@@ -182,7 +180,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 		int length = 0;
 		if (rowIndex == 0 && schema.getSheetSchemaParams().isWriteTile()) {
 			String title = "".equals(columnSchema.getTitle().trim()) ? field.getName() : columnSchema.getTitle();
-			ExcelWriterHelper.writeString(cell, title);
+			ExcelWriteUtils.writeString(cell, title);
 			length = title.getBytes().length;
 		} else {
 			if (curr == null) {
@@ -190,40 +188,12 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			}
 			try {
 				Object obj = field.get(curr);
-				if (obj != null) {
-					if (field.getType().isAssignableFrom(int.class)) {
-						ExcelWriterHelper.writeInt(cell, (int) obj);
-						length = getLength(obj);
-					} else if (field.getType().isAssignableFrom(Integer.class)) {
-						ExcelWriterHelper.writeInt(cell, (Integer) obj);
-						length = getLength(obj);
-					} else if (field.getType().isAssignableFrom(double.class)) {
-						ExcelWriterHelper.writeDouble(cell, (double) obj, columnSchema.getExpressInt());
-						length = getLength(obj);
-					} else if (field.getType().isAssignableFrom(Double.class)) {
-						ExcelWriterHelper.writeDouble(cell, (Double) obj, columnSchema.getExpressInt());
-						length = getLength(obj);
-					} else if (field.getType().isAssignableFrom(long.class)) {
-						ExcelWriterHelper.writeLong(cell, (long) obj);
-						length = getLength(obj);
-					} else if (field.getType().isAssignableFrom(Long.class)) {
-						ExcelWriterHelper.writeLong(cell, (Long) obj);
-						length = getLength(obj);
-					} else if (field.getType().isAssignableFrom(BigDecimal.class)) {
-						ExcelWriterHelper.writeBigDecimal(cell, (BigDecimal) obj, columnSchema.getExpressInt());
-						length = getLength(((BigDecimal) obj).doubleValue());
-					} else if (field.getType().isAssignableFrom(Date.class)) {
-						ExcelWriterHelper.writeDate(cell, (Date) obj, columnSchema.getExpress());
-						length = getLength(columnSchema.getExpress().trim().equals("") ? obj : columnSchema.getExpress());
-					} else if (field.getType().isAssignableFrom(boolean.class)) {
-						ExcelWriterHelper.writeBoolean(cell, (boolean) obj);
+				ExcelWriteUtils.write(cell, obj, columnSchema.getExpress());
+				if (schema.getSheetSchemaParams().isAutoWidth()) {
+					if (!field.getType().isAssignableFrom(boolean.class) && !field.getType().isAssignableFrom(Boolean.class)) {
+						length = String.valueOf(obj).getBytes().length;
+					} else {
 						length = 6;
-					} else if (field.getType().isAssignableFrom(Boolean.class)) {
-						ExcelWriterHelper.writeBoolean(cell, (Boolean) obj);
-						length = 6;
-					} else if (field.getType().isAssignableFrom(String.class)) {
-						ExcelWriterHelper.writeString(cell, (String) obj);
-						length = getLength(obj);
 					}
 				}
 			} catch (IllegalArgumentException e) {
@@ -258,20 +228,6 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 				}
 			}
 		}
-	}
-
-	/**
-	 * 获取数据长度
-	 * 
-	 * @param obj
-	 *            数据
-	 * @return
-	 */
-	private int getLength(Object obj) {
-		if (schema.getSheetSchemaParams().isAutoWidth()) {
-			return String.valueOf(obj).getBytes().length;
-		}
-		return 0;
 	}
 
 	/**

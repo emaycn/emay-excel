@@ -198,20 +198,4 @@ public class SheetSchema<D> {
 			throw new IllegalArgumentException("sheetSchemaParams's readDataEndRowIndex[" + readDataEndRowIndex + "] < readTitleRowIndex[" + readTitleRowIndex + "]");
 		}
 	}
-
-	/**
-	 * 新建一个数据实例
-	 * 
-	 * @return
-	 */
-	public D newData() {
-		try {
-			return getDataClass().newInstance();
-		} catch (InstantiationException e) {
-			throw new IllegalArgumentException(getDataClass().getName() + " can't be new Instance", e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalArgumentException(getDataClass().getName() + " can't be new Instance", e);
-		}
-	}
-
 }

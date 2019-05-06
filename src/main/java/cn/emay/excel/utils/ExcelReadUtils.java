@@ -1,7 +1,6 @@
-package cn.emay.excel.read;
+package cn.emay.excel.utils;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -14,7 +13,7 @@ import org.apache.poi.ss.usermodel.CellType;
  * @author Frank
  *
  */
-public class ExcelReadHelper {
+public class ExcelReadUtils {
 
 	/**
 	 * 读取日期类型数据
@@ -36,7 +35,7 @@ public class ExcelReadHelper {
 			date = cell.getDateCellValue();
 			break;
 		case STRING:
-			date = parseDate(cell.getStringCellValue(), express);
+			date = ExcelUtils.parseDate(cell.getStringCellValue(), express);
 			break;
 		default:
 			break;
@@ -62,7 +61,7 @@ public class ExcelReadHelper {
 		Date date = null;
 		try {
 			if (formatIndex == 49 || formatIndex == -1) {
-				date = parseDate(value, express);
+				date = ExcelUtils.parseDate(value, express);
 			} else {
 				Double d1 = Double.valueOf(value);
 				date = HSSFDateUtil.getJavaDate(d1);
@@ -340,21 +339,50 @@ public class ExcelReadHelper {
 		}
 	}
 
-	/**
-	 * 把字符串转成日期
-	 * 
-	 * @param dateStr
-	 * @param format
-	 * @return
-	 */
-	public static Date parseDate(String dateStr, String format) {
-		Date date = null;
-		try {
-			SimpleDateFormat sdf = new SimpleDateFormat(format);
-			date = sdf.parse(dateStr);
-		} catch (Exception e) {
+	public static Object read(Class<?> fieldClass, int formatIndex, String value, String express) {
+		if (value == null) {
+			return null;
 		}
-		return date;
+		Object obj = null;
+		if (fieldClass.isAssignableFrom(int.class) || fieldClass.isAssignableFrom(Integer.class)) {
+			obj = readInteger(value);
+		} else if (fieldClass.isAssignableFrom(Double.class) || fieldClass.isAssignableFrom(double.class)) {
+			obj = readDouble(value, ExcelUtils.parserExpressToInt(express));
+		} else if (fieldClass.isAssignableFrom(Long.class) || fieldClass.isAssignableFrom(long.class)) {
+			obj = readLong(value);
+		} else if (fieldClass.isAssignableFrom(BigDecimal.class)) {
+			obj = readBigDecimal(value, ExcelUtils.parserExpressToInt(express));
+		} else if (fieldClass.isAssignableFrom(Date.class)) {
+			obj = readDate(formatIndex, value, express);
+		} else if (fieldClass.isAssignableFrom(Boolean.class) || fieldClass.isAssignableFrom(boolean.class)) {
+			obj = readBoolean(value);
+		} else if (fieldClass.isAssignableFrom(String.class)) {
+			obj = readString(value);
+		}
+		return obj;
+	}
+
+	public static Object read(Class<?> fieldClass, Cell cell, String express) {
+		if (cell == null) {
+			return null;
+		}
+		Object obj = null;
+		if (fieldClass.isAssignableFrom(int.class) || fieldClass.isAssignableFrom(Integer.class)) {
+			obj = readInteger(cell);
+		} else if (fieldClass.isAssignableFrom(Double.class) || fieldClass.isAssignableFrom(double.class)) {
+			obj = readDouble(cell, ExcelUtils.parserExpressToInt(express));
+		} else if (fieldClass.isAssignableFrom(Long.class) || fieldClass.isAssignableFrom(long.class)) {
+			obj = readLong(cell);
+		} else if (fieldClass.isAssignableFrom(BigDecimal.class)) {
+			obj = readBigDecimal(cell, ExcelUtils.parserExpressToInt(express));
+		} else if (fieldClass.isAssignableFrom(Date.class)) {
+			obj = readDate(cell, express);
+		} else if (fieldClass.isAssignableFrom(Boolean.class) || fieldClass.isAssignableFrom(boolean.class)) {
+			obj = readBoolean(cell);
+		} else if (fieldClass.isAssignableFrom(String.class)) {
+			obj = readString(cell);
+		}
+		return obj;
 	}
 
 }
