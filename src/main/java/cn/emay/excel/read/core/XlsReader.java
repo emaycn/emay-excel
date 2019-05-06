@@ -29,7 +29,7 @@ public class XlsReader extends BaseReader {
 		Workbook workbook = null;
 		try {
 			workbook = new HSSFWorkbook(is);
-			read(workbook, handlersByIndex, handlersByName);
+			readWorkbook(workbook, handlersByIndex, handlersByName);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {
@@ -103,7 +103,7 @@ public class XlsReader extends BaseReader {
 		if (handlersByIndex == null || handlersByIndex.size() == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
-		read(workbook, handlersByIndex, null);
+		readWorkbook(workbook, handlersByIndex, null);
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class XlsReader extends BaseReader {
 		if (handlersByName == null || handlersByName.size() == 0) {
 			throw new IllegalArgumentException("handlers is null");
 		}
-		read(workbook, null, handlersByName);
+		readWorkbook(workbook, null, handlersByName);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class XlsReader extends BaseReader {
 	 * @param handlersByName
 	 *            按照表名匹配的Sheet读取处理器集合
 	 */
-	public void read(Workbook workbook, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
+	public void readWorkbook(Workbook workbook, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
 		if (workbook == null) {
 			throw new IllegalArgumentException("workbook is null");
 		}

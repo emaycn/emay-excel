@@ -14,15 +14,11 @@ import cn.emay.excel.common.schema.base.SheetSchemaParams;
  * 
  * @author Frank
  *
- * @param <D>
+ * @param <?>
  *            数据类型
  */
-public class SheetSchema<D> {
+public class SheetSchema {
 
-	/**
-	 * 数据Class
-	 */
-	private Class<D> dataClass;
 	/**
 	 * 表定义的参数集
 	 */
@@ -37,11 +33,10 @@ public class SheetSchema<D> {
 	 * @param dataClass
 	 *            数据Class
 	 */
-	public SheetSchema(Class<D> dataClass) {
+	public SheetSchema(Class<?> dataClass) {
 		if (dataClass == null) {
 			throw new IllegalArgumentException("dataClass is null");
 		}
-		this.dataClass = dataClass;
 		if (dataClass.isAnnotationPresent(ExcelSheet.class)) {
 			ExcelSheet sheet = dataClass.getAnnotation(ExcelSheet.class);
 			this.setSheetSchemaParams(sheet);
@@ -52,20 +47,16 @@ public class SheetSchema<D> {
 				}
 			}
 		}
-		this.dataClass = dataClass;
 	}
 
 	/**
 	 * 
-	 * @param dataClass
-	 *            数据Class
 	 * @param sheetSchemaParams
 	 *            表定义参数
 	 * @param columnSchemaByFieldNames
 	 *            列定义，根据字段名匹配
 	 */
-	public SheetSchema(Class<D> dataClass, SheetSchemaParams sheetSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
-		this(dataClass);
+	public SheetSchema(SheetSchemaParams sheetSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
 		this.setSheetSchemaParams(sheetSchemaParams);
 		this.setColumnSchemas(columnSchemaByFieldNames);
 	}
@@ -163,15 +154,6 @@ public class SheetSchema<D> {
 			return null;
 		}
 		return this.columnSchemas.get(fieldName);
-	}
-
-	/**
-	 * 获取数据class
-	 * 
-	 * @return
-	 */
-	public Class<D> getDataClass() {
-		return dataClass;
 	}
 
 	/**

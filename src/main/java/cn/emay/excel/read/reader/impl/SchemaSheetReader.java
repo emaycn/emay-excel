@@ -29,7 +29,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 	/**
 	 * 定义
 	 */
-	private SheetSchema<D> schema;
+	private SheetSchema schema;
 	/**
 	 * 数据处理器
 	 */
@@ -77,7 +77,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 	 * @param dataReader
 	 *            数据处理器
 	 */
-	public SchemaSheetReader(SheetSchema<D> schema, SheetDataHandler<D> dataReader) {
+	public SchemaSheetReader(SheetSchema schema, SheetDataHandler<D> dataReader) {
 		if (schema == null) {
 			throw new IllegalArgumentException("schema is null");
 		}
@@ -90,7 +90,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 		this.readByIndex = schema.getSheetSchemaParams().readByIndex();
 		Set<String> titles = new HashSet<>();
 		Set<Integer> indexs = new HashSet<>();
-		Field[] fieldArray = schema.getDataClass().getDeclaredFields();
+		Field[] fieldArray = dataReader.getDataClass().getDeclaredFields();
 		for (Field field : fieldArray) {
 			field.setAccessible(true);
 			ColumnSchema csma = schema.getExcelColumnByFieldName(field.getName());
@@ -133,7 +133,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
 			return;
 		}
-		curData = ExcelUtils.newData(schema.getDataClass());
+		curData = ExcelUtils.newData(dataReader.getDataClass());
 	}
 
 	@Override

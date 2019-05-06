@@ -1,7 +1,12 @@
 package cn.emay.excel.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import cn.emay.excel.common.ExcelVersion;
 
 /**
  * 一些工具
@@ -59,6 +64,37 @@ public class ExcelUtils {
 		} catch (IllegalAccessException e) {
 			throw new IllegalArgumentException(dataClass.getName() + " can't be new Instance", e);
 		}
+	}
+
+	/**
+	 * 从路径中解析出版本及输入流
+	 * 
+	 * @param excelPath
+	 *            Exce路径
+	 * @return
+	 */
+	public static ExcelPathInfo parserPath(String excelPath) {
+		ExcelVersion version = null;
+		FileInputStream fis = null;
+		if (excelPath == null) {
+			throw new IllegalArgumentException("excelPath is null");
+		}
+		if (!new File(excelPath).exists()) {
+			throw new IllegalArgumentException("excelPath[" + excelPath + "] is not exists");
+		}
+		if (excelPath.endsWith(ExcelVersion.XLSX.getSuffix())) {
+			version = ExcelVersion.XLSX;
+		} else if (excelPath.endsWith(ExcelVersion.XLS.getSuffix())) {
+			version = ExcelVersion.XLS;
+		} else {
+			throw new IllegalArgumentException("excelPath[" + excelPath + "] is not excel");
+		}
+		try {
+			fis = new FileInputStream(excelPath);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		}
+		return new ExcelPathInfo(version, fis);
 	}
 
 }

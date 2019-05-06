@@ -1,8 +1,5 @@
 package cn.emay.excel.read;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +15,8 @@ import cn.emay.excel.read.handler.SchemaSheetDataHandler;
 import cn.emay.excel.read.handler.SheetDataHandler;
 import cn.emay.excel.read.reader.SheetReader;
 import cn.emay.excel.read.reader.impl.SchemaSheetReader;
+import cn.emay.excel.utils.ExcelPathInfo;
+import cn.emay.excel.utils.ExcelUtils;
 
 /**
  * Excel基础读取<br/>
@@ -104,7 +103,7 @@ public class ExcelReader {
 	 *            数据处理器
 	 */
 	public static <D> void readBySheetName(String excelPath, String sheetName, SheetDataHandler<D> dataHandler) {
-		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema<D>(dataHandler.getDataClass()), dataHandler);
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema(dataHandler.getDataClass()), dataHandler);
 		readBySheetName(excelPath, sheetName, handler);
 	}
 
@@ -120,7 +119,7 @@ public class ExcelReader {
 	 *            数据处理器
 	 */
 	public static <D> void readBySheetIndex(String excelPath, int sheetIndex, SheetDataHandler<D> dataHandler) {
-		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema<D>(dataHandler.getDataClass()), dataHandler);
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema(dataHandler.getDataClass()), dataHandler);
 		readBySheetIndex(excelPath, sheetIndex, handler);
 	}
 
@@ -257,7 +256,7 @@ public class ExcelReader {
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
 	public static void readBySheetIndex(String excelPath, int sheetIndex, SheetReader reader) {
-		PathParser parser = new PathParser(excelPath);
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
 		readBySheetIndex(parser.getInputStream(), parser.getVersion(), sheetIndex, reader);
 	}
 
@@ -271,7 +270,7 @@ public class ExcelReader {
 	 *            按照Index匹配的Sheet读取处理器集合[处理器实例不可复用]
 	 */
 	public static void readBySheetIndexs(String excelPath, Map<Integer, SheetReader> readersByIndex) {
-		PathParser parser = new PathParser(excelPath);
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
 		readBySheetIndexs(parser.getInputStream(), parser.getVersion(), readersByIndex);
 	}
 
@@ -284,7 +283,7 @@ public class ExcelReader {
 	 *            Excel表处理器(handlers顺序号即为读取ExccelSheet的编号)
 	 */
 	public static void readByOrder(String excelPath, SheetReader... readers) {
-		PathParser parser = new PathParser(excelPath);
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
 		readByOrder(parser.getInputStream(), parser.getVersion(), readers);
 	}
 
@@ -300,7 +299,7 @@ public class ExcelReader {
 	 *            Sheet读取处理器[处理器实例不可复用]
 	 */
 	public static void readBySheetName(String excelPath, String sheetName, SheetReader reader) {
-		PathParser parser = new PathParser(excelPath);
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
 		readBySheetName(parser.getInputStream(), parser.getVersion(), sheetName, reader);
 	}
 
@@ -314,7 +313,7 @@ public class ExcelReader {
 	 *            按照表名匹配的Sheet读取处理器集合[处理器实例不可复用]
 	 */
 	public static void readBySheetNames(String excelPath, Map<String, SheetReader> readersByName) {
-		PathParser parser = new PathParser(excelPath);
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
 		readBySheetNames(parser.getInputStream(), parser.getVersion(), readersByName);
 
 	}
@@ -426,59 +425,6 @@ public class ExcelReader {
 		}
 	}
 
-}
-
-/**
- * 路径转换
- * 
- * @author Frank
- *
- */
-class PathParser {
-
-	/**
-	 * 版本
-	 */
-	private ExcelVersion version;
-
-	/**
-	 * 文件输入流
-	 */
-	private FileInputStream fis;
-
-	/**
-	 * 
-	 * @param excelPath
-	 *            Excel路径
-	 */
-	public PathParser(String excelPath) {
-		if (excelPath == null) {
-			throw new IllegalArgumentException("excelPath is null");
-		}
-		if (!new File(excelPath).exists()) {
-			throw new IllegalArgumentException("excelPath[" + excelPath + "] is not exists");
-		}
-		if (excelPath.endsWith(ExcelVersion.XLSX.getSuffix())) {
-			version = ExcelVersion.XLSX;
-		} else if (excelPath.endsWith(ExcelVersion.XLS.getSuffix())) {
-			version = ExcelVersion.XLS;
-		} else {
-			throw new IllegalArgumentException("excelPath[" + excelPath + "] is not excel");
-		}
-		try {
-			fis = new FileInputStream(excelPath);
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	public ExcelVersion getVersion() {
-		return version;
-	}
-
-	public InputStream getInputStream() {
-		return fis;
-	}
 }
 
 /**

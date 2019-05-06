@@ -94,7 +94,7 @@ public class ExcelWriter {
 			List<?> list = datas[i];
 			Class<?> dataClass = list.get(0).getClass();
 			SheetDataGetter<?> dataWriter = new ListSchemaSheetDataGetter(list, dataClass);
-			SheetSchema<?> sheetSchema = new SheetSchema<>(dataClass);
+			SheetSchema sheetSchema = new SheetSchema(dataClass);
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
 			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
 		}
@@ -157,7 +157,7 @@ public class ExcelWriter {
 		int cacheNumber = DEFAULT_CACHE_NUM;
 		for (int i = 0; i < datas.length; i++) {
 			SheetDataGetter<?> dataWriter = datas[i];
-			SheetSchema<?> sheetSchema = new SheetSchema<>(datas[i].getDataClass());
+			SheetSchema sheetSchema = new SheetSchema(datas[i].getDataClass());
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
 			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
 		}
@@ -218,7 +218,7 @@ public class ExcelWriter {
 		int cacheNumber = DEFAULT_CACHE_NUM;
 		for (int i = 0; i < datas.length; i++) {
 			SheetDataGetter<?> dataWriter = datas[i];
-			SheetSchema<?> sheetSchema = datas[i].getSheetSchema();
+			SheetSchema sheetSchema = datas[i].getSheetSchema();
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
 			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
 		}

@@ -58,7 +58,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 	/**
 	 * sheet 定义
 	 */
-	private SheetSchema<D> schema;
+	private SheetSchema schema;
 	/**
 	 * 列定义集合
 	 */
@@ -93,7 +93,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 	 * @param writeData
 	 *            数据写入处理器
 	 */
-	public SchemaSheetWriter(SheetSchema<D> schema, SheetDataGetter<D> writeData) {
+	public SchemaSheetWriter(SheetSchema schema, SheetDataGetter<D> writeData) {
 		if (schema == null) {
 			throw new IllegalArgumentException("schema is null");
 		}
@@ -106,7 +106,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 		this.isContentNeedColor = !Arrays.equals(schema.getSheetSchemaParams().getContentRgbColor(), DEFAULT_RGB_COLOR);
 		this.isTitleNeedColor = !Arrays.equals(schema.getSheetSchemaParams().getTitleRgbColor(), DEFAULT_RGB_COLOR);
 		Set<Integer> columnIndexs = new HashSet<>();
-		Field[] fields = schema.getDataClass().getDeclaredFields();
+		Field[] fields = writeData.getDataClass().getDeclaredFields();
 		for (Field field : fields) {
 			field.setAccessible(true);
 			ColumnSchema csma = schema.getExcelColumnByFieldName(field.getName());
@@ -114,7 +114,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 				continue;
 			}
 			if (columnIndexs.contains(csma.getIndex())) {
-				throw new IllegalArgumentException(schema.getDataClass().getName() + " has same columnIndex[" + csma.getIndex() + "] filed.");
+				throw new IllegalArgumentException(writeData.getDataClass().getName() + " has same columnIndex[" + csma.getIndex() + "] filed.");
 			}
 			columnIndexs.add(csma.getIndex());
 			schemaMap.put(csma.getIndex(), csma);
@@ -122,7 +122,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			maxColumnIndex = maxColumnIndex > csma.getIndex() ? maxColumnIndex : csma.getIndex();
 		}
 		if (fieldMap.size() == 0) {
-			throw new IllegalArgumentException("dataClass[" + schema.getDataClass().getName() + "] is not has ExcelColumn filed  ");
+			throw new IllegalArgumentException("dataClass[" + writeData.getDataClass().getName() + "] is not has ExcelColumn filed  ");
 		}
 	}
 

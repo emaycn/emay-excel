@@ -16,6 +16,6 @@ public interface SchemaSheetDataGetter<D> extends SheetDataGetter<D> {
 	 * 
 	 * @return
 	 */
-	public SheetSchema<D> getSheetSchema();
+	public SheetSchema getSheetSchema();
 
 }
