@@ -12,7 +12,7 @@ import cn.emay.excel.read.reader.SheetReader;
  * @author Frank
  *
  */
-public abstract class CoreReader {
+public abstract class BaseReader {
 
 	/**
 	 * 从输入流中读取Excel表格<br/>

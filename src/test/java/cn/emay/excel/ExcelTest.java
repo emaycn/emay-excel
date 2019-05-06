@@ -21,6 +21,11 @@ import cn.emay.excel.write.ExcelWriter;
 import cn.emay.excel.writer.handler.PersonDataWriter;
 import cn.emay.excel.writer.handler.WriteNormalHandler;
 
+/**
+ * 
+ * @author Frank
+ *
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExcelTest {
 
@@ -99,7 +104,7 @@ public class ExcelTest {
 
 	 @Test
 	public void dataXlsTest() {
-		ExcelWriter.write(xlsPath, new PersonDataWriter(datas));
+		ExcelWriter.writeFirst(xlsPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
 		ExcelReader.readFirstSheet(xlsPath, red);
 		List<Person> list = red.getDatas();
@@ -108,7 +113,7 @@ public class ExcelTest {
 
 	 @Test
 	public void dataXlsxTest() {
-		ExcelWriter.write(xlsxPath, new PersonDataWriter(datas));
+		ExcelWriter.writeFirst(xlsxPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
 		ExcelReader.readFirstSheet(xlsxPath, red);
 		List<Person> list = red.getDatas();
@@ -117,14 +122,14 @@ public class ExcelTest {
 
 	 @Test
 	public void schemaXlsTest() {
-		ExcelWriter.write(xlsPath, datas);
+		ExcelWriter.writeFirst(xlsPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsPath, Person.class);
 		check(list);
 	}
 
 	 @Test
 	public void schemaTest() {
-		ExcelWriter.write(xlsxPath, datas);
+		ExcelWriter.writeFirst(xlsxPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsxPath, Person.class);
 		check(list);
 	}

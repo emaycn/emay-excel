@@ -19,7 +19,7 @@ import cn.emay.excel.read.reader.SheetReader;
  * @author Frank
  *
  */
-public class XlsReader extends CoreReader {
+public class XlsReader extends BaseReader {
 
 	@Override
 	public void read(InputStream is, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {

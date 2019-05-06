@@ -49,7 +49,7 @@ public class ExcelWriter {
 		}
 		@SuppressWarnings("unchecked")
 		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
-		writeFirst(excelAbsolutePath, new ListSchemaSheetData<D>(datas, dataClass));
+		writeFirst(excelAbsolutePath, new ListSchemaSheetDataGetter<D>(datas, dataClass));
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class ExcelWriter {
 		}
 		@SuppressWarnings("unchecked")
 		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
-		writeFirst(os, version, new ListSchemaSheetData<D>(datas, dataClass));
+		writeFirst(os, version, new ListSchemaSheetDataGetter<D>(datas, dataClass));
 	}
 
 	/**
@@ -398,13 +398,36 @@ public class ExcelWriter {
 
 }
 
-class ListSchemaSheetData<D> implements SheetDataGetter<D> {
+/**
+ * 基于现有数据的数据获取器
+ * 
+ * @author Frank
+ *
+ * @param <D>
+ */
+class ListSchemaSheetDataGetter<D> implements SheetDataGetter<D> {
 
+	/**
+	 * 数据集合
+	 */
 	private List<D> datas;
+	/**
+	 * 数据大小
+	 */
 	private int size;
+	/**
+	 * 数据Class
+	 */
 	private Class<D> dataClass;
 
-	public ListSchemaSheetData(List<D> datas, Class<D> dataClass) {
+	/**
+	 * 
+	 * @param datas
+	 *            数据集合
+	 * @param dataClass
+	 *            数据Class
+	 */
+	public ListSchemaSheetDataGetter(List<D> datas, Class<D> dataClass) {
 		this.datas = datas;
 		size = datas.size();
 		this.dataClass = dataClass;

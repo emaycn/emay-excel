@@ -2,7 +2,7 @@ package cn.emay.excel.write.data;
 
 /**
  * 
- * 基于Excel定义的数据处理器
+ * 表数据获取器
  * 
  * @author Frank
  *
@@ -30,6 +30,11 @@ public interface SheetDataGetter<D> {
 	 */
 	boolean hasData(int rowIndex);
 
+	/**
+	 * 数据Class
+	 * 
+	 * @return
+	 */
 	Class<D> getDataClass();
 
 }

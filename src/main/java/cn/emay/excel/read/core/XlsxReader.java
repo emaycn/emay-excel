@@ -30,7 +30,7 @@ import cn.emay.excel.read.reader.SheetReader;
  * @author Frank
  *
  */
-public class XlsxReader extends CoreReader {
+public class XlsxReader extends BaseReader {
 
 	@Override
 	public void read(InputStream is, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
@@ -83,9 +83,7 @@ public class XlsxReader extends CoreReader {
 					}
 				}
 			}
-		} catch (
-
-		InvalidFormatException e) {
+		} catch (InvalidFormatException e) {
 			throw new IllegalArgumentException(e);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);

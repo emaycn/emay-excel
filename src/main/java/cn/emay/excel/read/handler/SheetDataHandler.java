@@ -2,7 +2,7 @@ package cn.emay.excel.read.handler;
 
 /**
  * 
- * 基于Schema读取到的数据处理器
+ * 基于Schema的表数据处理器
  * 
  * @author Frank
  *

@@ -11,7 +11,7 @@ import java.util.Map;
 
 import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.common.schema.base.SheetSchema;
-import cn.emay.excel.read.core.CoreReader;
+import cn.emay.excel.read.core.BaseReader;
 import cn.emay.excel.read.core.XlsReader;
 import cn.emay.excel.read.core.XlsxReader;
 import cn.emay.excel.read.handler.SchemaSheetDataHandler;
@@ -181,7 +181,7 @@ public class ExcelReader {
 		if (handlersByIndex == null) {
 			return;
 		}
-		Map<Integer, SheetReader> readers = new HashMap<Integer, SheetReader>();
+		Map<Integer, SheetReader> readers = new HashMap<Integer, SheetReader>(handlersByIndex.size());
 		for (Integer index : handlersByIndex.keySet()) {
 			SchemaSheetDataHandler<?> schemaSheetDataHandler = handlersByIndex.get(index);
 			SchemaSheetReader<?> handler = new SchemaSheetReader(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
@@ -224,7 +224,7 @@ public class ExcelReader {
 		if (handlersByName == null) {
 			return;
 		}
-		Map<String, SheetReader> readers = new HashMap<String, SheetReader>();
+		Map<String, SheetReader> readers = new HashMap<String, SheetReader>(handlersByName.size());
 		for (String name : handlersByName.keySet()) {
 			SchemaSheetDataHandler<?> schemaSheetDataHandler = handlersByName.get(name);
 			SchemaSheetReader<?> handler = new SchemaSheetReader(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
@@ -416,7 +416,7 @@ public class ExcelReader {
 	 *            Excel版本
 	 * @return
 	 */
-	private static CoreReader getReader(ExcelVersion version) {
+	private static BaseReader getReader(ExcelVersion version) {
 		if (version == null) {
 			return new XlsxReader();
 		} else if (ExcelVersion.XLS.equals(version)) {

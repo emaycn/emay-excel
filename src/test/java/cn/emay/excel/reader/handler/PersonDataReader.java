@@ -6,6 +6,11 @@ import java.util.List;
 import cn.emay.excel.common.Person;
 import cn.emay.excel.read.handler.SheetDataHandler;
 
+/**
+ * 
+ * @author Frank
+ *
+ */
 public class PersonDataReader implements SheetDataHandler<Person> {
 
 	private List<Person> list = new ArrayList<>();
