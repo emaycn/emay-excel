@@ -19,7 +19,12 @@ public interface SheetDataHandler<D> {
 	 *            行号
 	 */
 	void handle(int rowIndex, D data);
-	
+
+	/**
+	 * 获取数据Class
+	 * 
+	 * @return
+	 */
 	Class<D> getDataClass();
 
 }

@@ -7,9 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Excel列的定义<br/>
+ * 列定义<br/>
  * 
- * 支持String,Long,Integer,Double,Boolean,Date,BigDecimal类型
+ * 支持String,Long,Integer,Double,Boolean,Date,BigDecimal类型数据的读写
  * 
  * @author Frank
  *

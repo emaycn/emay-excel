@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Sheet定义
+ * 表定义
  * 
  * @author Frank
  *
@@ -114,13 +114,13 @@ public @interface ExcelSheet {
 	int[] contentRgbColor() default { 255, 255, 255 };
 
 	/**
-	 * 是否需要单元格边框，默认需要<br/>
+	 * 是否需要单元格边框，默认false<br/>
 	 * 
 	 * - writer:单元格边框画线；<br/>
 	 * 
 	 * @return
 	 */
-	boolean isNeedBorder() default true;
+	boolean isNeedBorder() default false;
 
 	/**
 	 * 是否自动换行，默认是<br/>

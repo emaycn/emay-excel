@@ -1,7 +1,7 @@
 package cn.emay.excel.common.schema.base;
 
 /**
- * Sheet定义参数
+ * 表定义的参数集
  * 
  * @author Frank
  *
@@ -86,11 +86,11 @@ public class SheetSchemaParams {
 	private int[] contentRgbColor = { 255, 255, 255 };
 
 	/**
-	 * 是否需要单元格边框，默认需要<br/>
+	 * 是否需要单元格边框，默认false<br/>
 	 * 
 	 * - writer:单元格边框画线；<br/>
 	 */
-	private boolean isNeedBorder = true;
+	private boolean isNeedBorder = false;
 
 	/**
 	 * 是否自动换行，默认是<br/>

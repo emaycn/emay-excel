@@ -10,7 +10,7 @@ import cn.emay.excel.common.schema.base.ColumnSchema;
 import cn.emay.excel.common.schema.base.SheetSchemaParams;
 
 /**
- * Excel表定义
+ * 表定义
  * 
  * @author Frank
  *
@@ -24,7 +24,7 @@ public class SheetSchema<D> {
 	 */
 	private Class<D> dataClass;
 	/**
-	 * 表定义
+	 * 表定义的参数集
 	 */
 	private SheetSchemaParams sheetSchemaParams;
 	/**
@@ -45,7 +45,7 @@ public class SheetSchema<D> {
 		if (dataClass.isAnnotationPresent(ExcelSheet.class)) {
 			ExcelSheet sheet = dataClass.getAnnotation(ExcelSheet.class);
 			this.setSheetSchemaParams(sheet);
-			Field[] fields = dataClass.getDeclaredFields();
+			Field[] fields = dataClass.getFields();
 			for (Field field : fields) {
 				if (field.isAnnotationPresent(ExcelColumn.class)) {
 					this.setColumnSchema(field.getName(), field.getAnnotation(ExcelColumn.class));
@@ -67,7 +67,7 @@ public class SheetSchema<D> {
 	public SheetSchema(Class<D> dataClass, SheetSchemaParams sheetSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
 		this(dataClass);
 		this.setSheetSchemaParams(sheetSchemaParams);
-		this.columnSchemas.putAll(columnSchemaByFieldNames);
+		this.setColumnSchemas(columnSchemaByFieldNames);
 	}
 
 	/**
@@ -103,6 +103,19 @@ public class SheetSchema<D> {
 	}
 
 	/**
+	 * 传入对应字段的列定义集合
+	 * 
+	 * @param columnSchemaByFieldNames
+	 *            以字段名为key的列定义集合
+	 */
+	public void setColumnSchemas(Map<String, ColumnSchema> columnSchemaByFieldNames) {
+		if (columnSchemaByFieldNames == null) {
+			return;
+		}
+		this.columnSchemas.putAll(columnSchemaByFieldNames);
+	}
+
+	/**
 	 * 传入对应字段的列定义对象
 	 * 
 	 * @param fieldName
@@ -111,6 +124,9 @@ public class SheetSchema<D> {
 	 *            列定义
 	 */
 	public void setColumnSchema(String fieldName, ColumnSchema columnSchema) {
+		if (fieldName == null) {
+			return;
+		}
 		this.columnSchemas.put(fieldName, columnSchema);
 	}
 
@@ -143,6 +159,9 @@ public class SheetSchema<D> {
 	 * @return
 	 */
 	public ColumnSchema getExcelColumnByFieldName(String fieldName) {
+		if (fieldName == null) {
+			return null;
+		}
 		return this.columnSchemas.get(fieldName);
 	}
 

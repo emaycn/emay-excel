@@ -2,7 +2,6 @@ package cn.emay.excel.read.core;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,116 +30,10 @@ import cn.emay.excel.read.reader.SheetReader;
  * @author Frank
  *
  */
-public class XlsxReader {
+public class XlsxReader extends CoreReader {
 
-	/**
-	 * 从输入流中读取Excel表格<br/>
-	 * 
-	 * @param is
-	 *            输入流
-	 * @param sheetName
-	 *            Sheet页名字
-	 * @param handler
-	 *            Sheet读取处理器
-	 */
-	public static void readBySheetIndex(InputStream is, int sheetIndex, SheetReader handler) {
-		if (handler == null) {
-			throw new IllegalArgumentException("handler is null");
-		}
-		if (sheetIndex < 0) {
-			throw new IllegalArgumentException("sheetIndex begin with 0 , and must bigger than 0");
-		}
-		Map<Integer, SheetReader> handlersByName = new HashMap<>(1);
-		handlersByName.put(sheetIndex, handler);
-		readBySheetIndexs(is, handlersByName);
-	}
-
-	/**
-	 * 从输入流中读取Excel表格<br/>
-	 * 
-	 * @param is
-	 *            输入流
-	 * @param handlers
-	 *            按照Index匹配的Sheet读取处理器集合[数组index=sheet index]
-	 */
-	public static void readByOrder(InputStream is, SheetReader... handlers) {
-		if (handlers == null || handlers.length == 0) {
-			throw new IllegalArgumentException("handlers is null");
-		}
-		Map<Integer, SheetReader> handlersByIndex = new HashMap<>(handlers.length);
-		for (int i = 0; i < handlers.length; i++) {
-			handlersByIndex.put(i, handlers[i]);
-		}
-		readBySheetIndexs(is, handlersByIndex);
-	}
-
-	/**
-	 * 从输入流中读取Excel表格<br/>
-	 * 按照表序号匹配读取处理器<br/>
-	 * 
-	 * @param is
-	 *            输入流
-	 * @param handlersByIndex
-	 *            按照Index匹配的Sheet读取处理器集合
-	 */
-	public static void readBySheetIndexs(InputStream is, Map<Integer, SheetReader> handlersByIndex) {
-		if (handlersByIndex == null || handlersByIndex.size() == 0) {
-			throw new IllegalArgumentException("handlers is null");
-		}
-		read(is, handlersByIndex, null);
-	}
-
-	/**
-	 * 从输入流中读取Excel表格<br/>
-	 * 
-	 * @param is
-	 *            输入流
-	 * @param sheetName
-	 *            Sheet页名字
-	 * @param handler
-	 *            Sheet读取处理器
-	 */
-	public static void readBySheetName(InputStream is, String sheetName, SheetReader handler) {
-		if (handler == null) {
-			throw new IllegalArgumentException("handler is null");
-		}
-		if (sheetName == null) {
-			throw new IllegalArgumentException("sheetName is null");
-		}
-		Map<String, SheetReader> handlersByName = new HashMap<>(1);
-		handlersByName.put(sheetName, handler);
-		readBySheetNames(is, handlersByName);
-	}
-
-	/**
-	 * 从输入流中读取Excel表格<br/>
-	 * 按照表名匹配读取处理器<br/>
-	 * 
-	 * @param is
-	 *            输入流
-	 * @param handlersByName
-	 *            按照表名匹配的Sheet读取处理器集合
-	 */
-	public static void readBySheetNames(InputStream is, Map<String, SheetReader> handlersByName) {
-		if (handlersByName == null || handlersByName.size() == 0) {
-			throw new IllegalArgumentException("handlers is null");
-		}
-		read(is, null, handlersByName);
-	}
-
-	/**
-	 * 从输入流中读取Excel表格<br/>
-	 * SAX方式<br/>
-	 * 所有处理器依次进行匹配
-	 * 
-	 * @param is
-	 *            输入流
-	 * @param handlersByIndex
-	 *            按照Index匹配的Sheet读取处理器集合
-	 * @param handlersByName
-	 *            按照表名匹配的Sheet读取处理器集合
-	 */
-	public static void read(InputStream is, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
+	@Override
+	public void read(InputStream is, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
 		if (is == null) {
 			throw new IllegalArgumentException("InputStream is null");
 		}
@@ -158,10 +51,10 @@ public class XlsxReader {
 					sheet = iter.next();
 					String sheetName = iter.getSheetName();
 					SheetReader readHander = null;
-					if(handlersByIndex != null) {
+					if (handlersByIndex != null) {
 						readHander = handlersByIndex.get(sheetIndex);
 					}
-					if(readHander == null && handlersByName != null) {
+					if (readHander == null && handlersByName != null) {
 						readHander = handlersByName.get(sheetName);
 					}
 					if (readHander == null) {
@@ -171,7 +64,7 @@ public class XlsxReader {
 					SAXParserFactory saxFactory = SAXParserFactory.newInstance();
 					SAXParser saxParser = saxFactory.newSAXParser();
 					XMLReader sheetParser = saxParser.getXMLReader();
-					XlsxSheetHandler mxHandler = new XlsxSheetHandler(stylesTable, sst,sheetIndex ,sheetName,readHander);
+					XlsxSheetHandler mxHandler = new XlsxSheetHandler(stylesTable, sst, sheetIndex, sheetName, readHander);
 					sheetParser.setContentHandler(mxHandler);
 					sheetParser.parse(sheetSource);
 				} catch (XlsxStopReadException e) {

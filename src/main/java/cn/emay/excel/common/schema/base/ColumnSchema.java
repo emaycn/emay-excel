@@ -1,7 +1,9 @@
 package cn.emay.excel.common.schema.base;
 
 /**
- * 列定义
+ * 列定义<br/>
+ * 
+ * 支持String,Long,Integer,Double,Boolean,Date,BigDecimal类型数据的读写
  * 
  * @author Frank
  *
@@ -50,13 +52,7 @@ public class ColumnSchema {
 	 *            列的数据转换表达式
 	 */
 	public ColumnSchema(int index, String title, String express) {
-		if (index < 0) {
-			throw new IllegalArgumentException("index[" + index + "] must bigger than -1");
-		}
-		if (title == null) {
-			throw new IllegalArgumentException("title is null");
-		}
-		this.setIndex(index);
+		this.index = index;
 		this.title = title;
 		this.express = express;
 	}

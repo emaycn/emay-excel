@@ -62,6 +62,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 	 */
 	private Map<Integer, String> colTitles = new HashMap<>();
 
+	/**
+	 * 
+	 * @param schemaSheetDataHandler
+	 *            基于定义的数据处理器
+	 */
 	public SchemaSheetReader(SchemaSheetDataHandler<D> schemaSheetDataHandler) {
 		this(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
 	}
