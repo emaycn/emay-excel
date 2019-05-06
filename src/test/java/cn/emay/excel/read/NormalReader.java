@@ -1,4 +1,4 @@
-package cn.emay.excel.reader.handler;
+package cn.emay.excel.read;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import cn.emay.excel.utils.ExcelReadUtils;
  * @author Frank
  *
  */
-public class ReadNormalHandler implements SheetReader {
+public class NormalReader implements SheetReader {
 
 	private List<Person> list = new ArrayList<>();
 	private List<String> titles = new ArrayList<String>();

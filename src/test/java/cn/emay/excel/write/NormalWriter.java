@@ -1,4 +1,4 @@
-package cn.emay.excel.writer.handler;
+package cn.emay.excel.write;
 
 import java.util.List;
 
@@ -15,14 +15,14 @@ import cn.emay.excel.write.writer.SheetWriter;
  * @author Frank
  *
  */
-public class WriteNormalHandler implements SheetWriter {
+public class NormalWriter implements SheetWriter {
 
 	private List<Person> datas;
 	private List<String> titles;
 
 	private Person curr;
 
-	public WriteNormalHandler(List<String> titles, List<Person> datas) {
+	public NormalWriter(List<String> titles, List<Person> datas) {
 		this.datas = datas;
 		this.titles = titles;
 	}

@@ -15,18 +15,20 @@ import org.junit.runners.MethodSorters;
 
 import cn.emay.excel.common.Person;
 import cn.emay.excel.read.ExcelReader;
-import cn.emay.excel.reader.handler.PersonDataReader;
-import cn.emay.excel.reader.handler.ReadNormalHandler;
+import cn.emay.excel.read.NormalReader;
+import cn.emay.excel.read.PersonDataHandler;
+import cn.emay.excel.read.PersonSchemaDataHandler;
 import cn.emay.excel.write.ExcelWriter;
+import cn.emay.excel.write.NormalWriter;
+import cn.emay.excel.write.PersonDataGetter;
+import cn.emay.excel.write.PersonSchemaDataGetter;
 import cn.emay.excel.write.data.WriteData;
-import cn.emay.excel.writer.handler.PersonDataWriter;
-import cn.emay.excel.writer.handler.WriteNormalHandler;
 
 /**
  * 5组测试:<br/>
  * 1.normal--基于writer/reader的测试<br/>
- * 2.schema--基于自定义writer/reader的schemaHandler测试<br/> TODO
- * 3.annotation--基于注解的writer/reader的Handler测试<br/>
+ * 2.schema--基于自定义writer/reader的schemaHandler测试<br/> 
+ * 3.annscheman--基于注解的writer/reader的Handler测试<br/>
  * 4.data--基于注解的writer/reader的数据/class测试<br/>
  * 5.coordinate--基于坐标的精准读取测试<br/>
  * 
@@ -112,75 +114,93 @@ public class ExcelTest {
 
 	@Test
 	public void normalXlsTest() {
-		ExcelWriter.write(xlsPath, new WriteNormalHandler(titles, datas));
-		ReadNormalHandler handler = new ReadNormalHandler();
-		ExcelReader.readFirstSheet(xlsPath, handler);
-		List<Person> list = handler.getDatas();
-		List<String> tits = handler.getTitles();
+		ExcelWriter.write(xlsPath, new NormalWriter(titles, datas));
+		NormalReader reader = new NormalReader();
+		ExcelReader.readFirstSheet(xlsPath, reader);
+		List<Person> list = reader.getDatas();
+		List<String> tits = reader.getTitles();
 		checkTitle(tits);
 		check(list);
 	}
 
 	@Test
 	public void normalXlsxTest() {
-		ExcelWriter.write(xlsxPath, new WriteNormalHandler(titles, datas));
-		ReadNormalHandler handler = new ReadNormalHandler();
-		ExcelReader.readFirstSheet(xlsxPath, handler);
-		List<Person> list = handler.getDatas();
-		List<String> tits = handler.getTitles();
+		ExcelWriter.write(xlsxPath, new NormalWriter(titles, datas));
+		NormalReader reader = new NormalReader();
+		ExcelReader.readFirstSheet(xlsxPath, reader);
+		List<Person> list = reader.getDatas();
+		List<String> tits = reader.getTitles();
 		checkTitle(tits);
 		check(list);
 	}
 
 	@Test
-	public void dataXlsTest() {
-		ExcelWriter.write(xlsPath, new PersonDataWriter(datas));
-		PersonDataReader red = new PersonDataReader();
+	public void annSchemaXlsTest() {
+		ExcelWriter.write(xlsPath, new PersonDataGetter(datas));
+		PersonDataHandler red = new PersonDataHandler();
 		ExcelReader.readFirstSheet(xlsPath, red);
 		List<Person> list = red.getDatas();
 		check(list);
 	}
 
 	@Test
-	public void dataXlsxTest() {
-		ExcelWriter.write(xlsxPath, new PersonDataWriter(datas));
-		PersonDataReader red = new PersonDataReader();
+	public void annSchemaXlsxTest() {
+		ExcelWriter.write(xlsxPath, new PersonDataGetter(datas));
+		PersonDataHandler red = new PersonDataHandler();
+		ExcelReader.readFirstSheet(xlsxPath, red);
+		List<Person> list = red.getDatas();
+		check(list);
+	}
+	
+	@Test
+	public void schemaXlsTest() {
+		ExcelWriter.write(xlsPath, new PersonSchemaDataGetter(datas));
+		PersonSchemaDataHandler red = new PersonSchemaDataHandler();
+		ExcelReader.readFirstSheet(xlsPath, red);
+		List<Person> list = red.getDatas();
+		check(list);
+	}
+
+	@Test
+	public void schemaXlsxTest() {
+		ExcelWriter.write(xlsxPath, new PersonSchemaDataGetter(datas));
+		PersonSchemaDataHandler red = new PersonSchemaDataHandler();
 		ExcelReader.readFirstSheet(xlsxPath, red);
 		List<Person> list = red.getDatas();
 		check(list);
 	}
 
 	@Test
-	public void schemaXlsTest() {
+	public void dataXlsTest() {
 		ExcelWriter.write(xlsPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsPath, Person.class);
 		check(list);
 	}
 
 	@Test
-	public void schemaTest() {
+	public void dataXlsxTest() {
 		ExcelWriter.write(xlsxPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsxPath, Person.class);
 		check(list);
 	}
 
 	@Test
-	public void writeExists() {
-		ExcelWriter.write(xlsxPath, new WriteNormalHandler(titles, datas));
+	public void coordinateXlsxTest() {
+		ExcelWriter.write(xlsxPath, new NormalWriter(titles, datas));
 		ExcelWriter.writeByCoordinate(xlsxPath, xlsxPathTo, writedDatas);
-		String[] resus = ExcelReader.readStringByCoordinate(xlsxPathTo, coordinates);
+		List<String> resus = ExcelReader.readByCoordinate(String.class,xlsxPathTo, coordinates);
 		for (int i = 0; i < 8; i++) {
-			Assert.assertEquals(resus[i], writedDatas[i].getData());
+			Assert.assertEquals(resus.get(i), writedDatas[i].getData());
 		}
 	}
 
 	@Test
-	public void writeXlsExists() {
-		ExcelWriter.write(xlsPath, new WriteNormalHandler(titles, datas));
+	public void coordinateXlsTest() {
+		ExcelWriter.write(xlsPath, new NormalWriter(titles, datas));
 		ExcelWriter.writeByCoordinate(xlsPath, xlsPathTo, writedDatas);
-		String[] resus = ExcelReader.readStringByCoordinate(xlsPathTo, coordinates);
+		List<String> resus = ExcelReader.readByCoordinate(String.class,xlsPathTo, coordinates);
 		for (int i = 0; i < 8; i++) {
-			Assert.assertEquals(resus[i], writedDatas[i].getData());
+			Assert.assertEquals(resus.get(i), writedDatas[i].getData());
 		}
 	}
 

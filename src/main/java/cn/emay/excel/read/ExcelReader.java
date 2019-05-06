@@ -487,7 +487,7 @@ public class ExcelReader {
 	}
 
 	/**
-	 * 按照坐标读取字符串类型数据<br/>
+	 * 按照坐标读取数据(String类型)<br/>
 	 * 大数据量的Excel禁用
 	 * 
 	 * @param excelPath
@@ -496,13 +496,29 @@ public class ExcelReader {
 	 *            坐标集合
 	 * @return
 	 */
-	public static String[] readStringByCoordinate(String excelPath, int[]... coordinates) {
-		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
-		return readStringByCoordinate(parser.getInputStream(), parser.getVersion(), coordinates);
+	public static List<String> readByCoordinate(String excelPath, int[]... coordinates) {
+		return readByCoordinate(String.class, excelPath, coordinates);
 	}
 
 	/**
-	 * 按照坐标读取字符串类型数据<br/>
+	 * 按照坐标读取数据<br/>
+	 * 大数据量的Excel禁用
+	 * 
+	 * @param dataClass
+	 *            读取的数据类型（所有数据都是此类型）
+	 * @param excelPath
+	 *            Excel路径
+	 * @param coordinates
+	 *            坐标集合
+	 * @return
+	 */
+	public static <T> List<T> readByCoordinate(Class<T> dataClass, String excelPath, int[]... coordinates) {
+		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
+		return readByCoordinate(dataClass, parser.getInputStream(), parser.getVersion(), coordinates);
+	}
+
+	/**
+	 * 按照坐标读取数据(String类型)<br/>
 	 * 大数据量的Excel禁用
 	 * 
 	 * @param is
@@ -513,12 +529,29 @@ public class ExcelReader {
 	 *            坐标集合
 	 * @return
 	 */
-	public static String[] readStringByCoordinate(InputStream is, ExcelVersion version, int[]... coordinates) {
+	public static List<String> readByCoordinate(InputStream is, ExcelVersion version, int[]... coordinates) {
+		return readByCoordinate(String.class, is, version, coordinates);
+	}
+
+	/**
+	 * 按照坐标读取数据<br/>
+	 * 大数据量的Excel禁用
+	 * 
+	 * @param dataClass
+	 *            读取的数据类型（所有数据都是此类型）
+	 * @param is
+	 *            输入流
+	 * @param version
+	 *            Excel版本
+	 * @param coordinates
+	 *            坐标集合
+	 * @return
+	 */
+	public static <T> List<T> readByCoordinate(Class<T> dataClass, InputStream is, ExcelVersion version, int[]... coordinates) {
 		if (coordinates == null) {
 			throw new IllegalArgumentException("coordinates is null");
 		}
-		String[] datas = new String[coordinates.length];
-		int index = 0;
+		List<T> datas = new ArrayList<>(coordinates.length);
 		Map<Integer, Map<Integer, Map<Integer, String>>> dataByCoordinate = new TreeMap<>();
 		for (int[] coordinate : coordinates) {
 			if (coordinate == null) {
@@ -579,7 +612,8 @@ public class ExcelReader {
 						if (cell == null) {
 							continue;
 						}
-						datas[index++] = ExcelReadUtils.read(String.class, cell, null);
+						T data = ExcelReadUtils.read(dataClass, cell, null);
+						datas.add(data);
 					}
 				}
 			}
