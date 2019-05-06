@@ -108,6 +108,29 @@ public class ExcelReader {
 	}
 
 	/**
+	 * 从文件中读取Excel表格<br/>
+	 * 按照表名匹配读取处理器<br/>
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param handlersByName
+	 *            按照表名匹配的Sheet读取表格定义读取器
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void readBySheetNamesWithHandler(String excelPath, Map<String, SheetDataHandler<?>> handlersByName) {
+		if (handlersByName == null) {
+			return;
+		}
+		Map<String, SheetReader> readers = new HashMap<String, SheetReader>(handlersByName.size());
+		for (String name : handlersByName.keySet()) {
+			SheetDataHandler<?> handler = handlersByName.get(name);
+			SchemaSheetReader<?> reader = new SchemaSheetReader(new SheetSchema(handler.getDataClass()), handler);
+			readers.put(name, reader);
+		}
+		readBySheetNames(excelPath, readers);
+	}
+
+	/**
 	 * 从Excel文件中读取一个表格<br/>
 	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
 	 * 
@@ -124,6 +147,50 @@ public class ExcelReader {
 	}
 
 	/**
+	 * 从文件中读取Excel表格<br/>
+	 * 按照表序号匹配读取处理器<br/>
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param handlersByIndex
+	 *            按照Index匹配的Sheet读取表格定义读取器
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void readBySheetIndexsWithHandler(String excelPath, Map<Integer, SheetDataHandler<?>> handlersByIndex) {
+		if (handlersByIndex == null) {
+			return;
+		}
+		Map<Integer, SheetReader> readers = new HashMap<Integer, SheetReader>(handlersByIndex.size());
+		for (Integer index : handlersByIndex.keySet()) {
+			SheetDataHandler<?> handler = handlersByIndex.get(index);
+			SchemaSheetReader<?> reader = new SchemaSheetReader(new SheetSchema(handler.getDataClass()), handler);
+			readers.put(index, reader);
+		}
+		readBySheetIndexs(excelPath, readers);
+	}
+
+	/**
+	 * 从文件中读取Excel表格<br/>
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param handlers
+	 *            Excel表格定义读取器(handlers顺序号即为读取ExccelSheet的编号)
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void readByOrderWithSchema(String excelPath, SheetDataHandler<?>... handlers) {
+		if (handlers == null) {
+			return;
+		}
+		SheetReader[] readers = new SheetReader[handlers.length];
+		for (int i = 0; i < handlers.length; i++) {
+			SheetDataHandler<?> handler = handlers[i];
+			readers[i] = new SchemaSheetReader(new SheetSchema(handler.getDataClass()), handler);
+		}
+		readByOrder(excelPath, readers);
+	}
+
+	/**
 	 * 从Excel文件中读取第一个表格<br/>
 	 * 
 	 * @param excelPath
@@ -137,18 +204,26 @@ public class ExcelReader {
 	}
 
 	/**
-	 * 从Excel文件中读取一个表格<br/>
+	 * 从文件中读取Excel表格<br/>
+	 * 按照表序号匹配读取处理器<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
-	 * @param sheetName
-	 *            Sheet页名字
-	 * @param schemaSheetDataHandler
-	 *            表格定义读取器
+	 * @param handlersByIndex
+	 *            按照Index匹配的Sheet读取表格定义读取器
 	 */
-	public static <D> void readBySheetName(String excelPath, String sheetName, SchemaSheetDataHandler<D> schemaSheetDataHandler) {
-		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
-		readBySheetName(excelPath, sheetName, handler);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void readBySheetIndexsWithSchema(String excelPath, Map<Integer, SchemaSheetDataHandler<?>> handlersByIndex) {
+		if (handlersByIndex == null) {
+			return;
+		}
+		Map<Integer, SheetReader> readers = new HashMap<Integer, SheetReader>(handlersByIndex.size());
+		for (Integer index : handlersByIndex.keySet()) {
+			SchemaSheetDataHandler<?> schemaSheetDataHandler = handlersByIndex.get(index);
+			SchemaSheetReader<?> handler = new SchemaSheetReader(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
+			readers.put(index, handler);
+		}
+		readBySheetIndexs(excelPath, readers);
 	}
 
 	/**
@@ -168,29 +243,6 @@ public class ExcelReader {
 
 	/**
 	 * 从文件中读取Excel表格<br/>
-	 * 按照表序号匹配读取处理器<br/>
-	 * 
-	 * @param excelPath
-	 *            路径
-	 * @param handlersByIndex
-	 *            按照Index匹配的Sheet读取表格定义读取器
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void readBySheetIndexsWithSchema(String excelPath, Map<Integer, SchemaSheetDataHandler> handlersByIndex) {
-		if (handlersByIndex == null) {
-			return;
-		}
-		Map<Integer, SheetReader> readers = new HashMap<Integer, SheetReader>(handlersByIndex.size());
-		for (Integer index : handlersByIndex.keySet()) {
-			SchemaSheetDataHandler<?> schemaSheetDataHandler = handlersByIndex.get(index);
-			SchemaSheetReader<?> handler = new SchemaSheetReader(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
-			readers.put(index, handler);
-		}
-		readBySheetIndexs(excelPath, readers);
-	}
-
-	/**
-	 * 从文件中读取Excel表格<br/>
 	 * 
 	 * @param excelPath
 	 *            路径
@@ -198,7 +250,7 @@ public class ExcelReader {
 	 *            Excel表格定义读取器(handlers顺序号即为读取ExccelSheet的编号)
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void readByOrderWithSchema(String excelPath, SchemaSheetDataHandler... handlers) {
+	public static void readByOrderWithSchema(String excelPath, SchemaSheetDataHandler<?>... handlers) {
 		if (handlers == null) {
 			return;
 		}
@@ -207,6 +259,21 @@ public class ExcelReader {
 			readers[i] = new SchemaSheetReader(handlers[i].getSheetSchema(), handlers[i]);
 		}
 		readByOrder(excelPath, readers);
+	}
+
+	/**
+	 * 从Excel文件中读取一个表格<br/>
+	 * 
+	 * @param excelPath
+	 *            路径
+	 * @param sheetName
+	 *            Sheet页名字
+	 * @param schemaSheetDataHandler
+	 *            表格定义读取器
+	 */
+	public static <D> void readBySheetName(String excelPath, String sheetName, SchemaSheetDataHandler<D> schemaSheetDataHandler) {
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(schemaSheetDataHandler.getSheetSchema(), schemaSheetDataHandler);
+		readBySheetName(excelPath, sheetName, handler);
 	}
 
 	/**
@@ -219,7 +286,7 @@ public class ExcelReader {
 	 *            按照表名匹配的Sheet读取表格定义读取器
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void readBySheetNamesWithSchema(String excelPath, Map<String, SchemaSheetDataHandler> handlersByName) {
+	public static void readBySheetNamesWithSchema(String excelPath, Map<String, SchemaSheetDataHandler<?>> handlersByName) {
 		if (handlersByName == null) {
 			return;
 		}
