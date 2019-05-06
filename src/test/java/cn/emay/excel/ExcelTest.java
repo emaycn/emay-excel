@@ -23,6 +23,12 @@ import cn.emay.excel.writer.handler.PersonDataWriter;
 import cn.emay.excel.writer.handler.WriteNormalHandler;
 
 /**
+ * 5组测试:<br/>
+ * 1.normal--基于writer/reader的测试<br/>
+ * 2.schema--基于自定义writer/reader的schemaHandler测试<br/> TODO
+ * 3.annotation--基于注解的writer/reader的Handler测试<br/>
+ * 4.data--基于注解的writer/reader的数据/class测试<br/>
+ * 5.coordinate--基于坐标的精准读取测试<br/>
  * 
  * @author Frank
  *
