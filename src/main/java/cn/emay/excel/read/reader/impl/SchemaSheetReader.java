@@ -162,11 +162,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 			if (field.getType().isAssignableFrom(int.class) || field.getType().isAssignableFrom(Integer.class)) {
 				obj = ExcelReadHelper.readInteger(cell);
 			} else if (field.getType().isAssignableFrom(Double.class) || field.getType().isAssignableFrom(double.class)) {
-				obj = ExcelReadHelper.readDouble(cell, parseNumberExpress(columnSchema.getExpress()));
+				obj = ExcelReadHelper.readDouble(cell, columnSchema.getExpressInt());
 			} else if (field.getType().isAssignableFrom(Long.class) || field.getType().isAssignableFrom(long.class)) {
 				obj = ExcelReadHelper.readLong(cell);
 			} else if (field.getType().isAssignableFrom(BigDecimal.class)) {
-				obj = ExcelReadHelper.readBigDecimal(cell, parseNumberExpress(columnSchema.getExpress()));
+				obj = ExcelReadHelper.readBigDecimal(cell, columnSchema.getExpressInt());
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				obj = ExcelReadHelper.readDate(cell, columnSchema.getExpress());
 			} else if (field.getType().isAssignableFrom(Boolean.class) || field.getType().isAssignableFrom(boolean.class)) {
@@ -211,11 +211,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 			if (field.getType().isAssignableFrom(int.class) || field.getType().isAssignableFrom(Integer.class)) {
 				obj = ExcelReadHelper.readInteger(value);
 			} else if (field.getType().isAssignableFrom(Double.class) || field.getType().isAssignableFrom(double.class)) {
-				obj = ExcelReadHelper.readDouble(value, parseNumberExpress(columnSchema.getExpress()));
+				obj = ExcelReadHelper.readDouble(value, columnSchema.getExpressInt());
 			} else if (field.getType().isAssignableFrom(Long.class) || field.getType().isAssignableFrom(long.class)) {
 				obj = ExcelReadHelper.readLong(value);
 			} else if (field.getType().isAssignableFrom(BigDecimal.class)) {
-				obj = ExcelReadHelper.readBigDecimal(value, parseNumberExpress(columnSchema.getExpress()));
+				obj = ExcelReadHelper.readBigDecimal(value, columnSchema.getExpressInt());
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				obj = ExcelReadHelper.readDate(formatIndex, value, columnSchema.getExpress());
 			} else if (field.getType().isAssignableFrom(Boolean.class) || field.getType().isAssignableFrom(boolean.class)) {
@@ -245,23 +245,5 @@ public class SchemaSheetReader<D> implements SheetReader {
 	@Override
 	public void end(int sheetIndex, String sheetName) {
 		curData = null;
-	}
-
-	/**
-	 * 解析schema的express小数点后个数
-	 * 
-	 * @param express
-	 *            表达式
-	 * @return
-	 */
-	private int parseNumberExpress(String express) {
-		int num = -1;
-		if (express != null && !"".equalsIgnoreCase(express.trim())) {
-			try {
-				return Integer.parseInt(express);
-			} catch (Exception e) {
-			}
-		}
-		return num;
 	}
 }

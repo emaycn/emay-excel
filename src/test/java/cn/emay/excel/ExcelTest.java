@@ -18,6 +18,7 @@ import cn.emay.excel.read.ExcelReader;
 import cn.emay.excel.reader.handler.PersonDataReader;
 import cn.emay.excel.reader.handler.ReadNormalHandler;
 import cn.emay.excel.write.ExcelWriter;
+import cn.emay.excel.write.data.WriteData;
 import cn.emay.excel.writer.handler.PersonDataWriter;
 import cn.emay.excel.writer.handler.WriteNormalHandler;
 
@@ -35,7 +36,7 @@ public class ExcelTest {
 	private static List<Person> datas = new ArrayList<Person>(7);
 	private static List<String> titles = new ArrayList<String>(7);
 
-	 @BeforeClass
+	@BeforeClass
 	public static void before() {
 		String dirPath = System.getProperty("user.dir") + File.separator;
 		xlsPath = dirPath + File.separatorChar + "exceltest.xls";
@@ -80,7 +81,7 @@ public class ExcelTest {
 		}
 	}
 
-	 @Test
+	@Test
 	public void normalXlsTest() {
 		ExcelWriter.write(xlsPath, new WriteNormalHandler(titles, datas));
 		ReadNormalHandler handler = new ReadNormalHandler();
@@ -91,7 +92,7 @@ public class ExcelTest {
 		check(list);
 	}
 
-	 @Test
+	@Test
 	public void normalXlsxTest() {
 		ExcelWriter.write(xlsxPath, new WriteNormalHandler(titles, datas));
 		ReadNormalHandler handler = new ReadNormalHandler();
@@ -102,39 +103,52 @@ public class ExcelTest {
 		check(list);
 	}
 
-	 @Test
+	@Test
 	public void dataXlsTest() {
-		ExcelWriter.writeFirst(xlsPath, new PersonDataWriter(datas));
+		ExcelWriter.writeFirstSheet(xlsPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
 		ExcelReader.readFirstSheet(xlsPath, red);
 		List<Person> list = red.getDatas();
 		check(list);
 	}
 
-	 @Test
+	@Test
 	public void dataXlsxTest() {
-		ExcelWriter.writeFirst(xlsxPath, new PersonDataWriter(datas));
+		ExcelWriter.writeFirstSheet(xlsxPath, new PersonDataWriter(datas));
 		PersonDataReader red = new PersonDataReader();
 		ExcelReader.readFirstSheet(xlsxPath, red);
 		List<Person> list = red.getDatas();
 		check(list);
 	}
 
-	 @Test
+	@Test
 	public void schemaXlsTest() {
-		ExcelWriter.writeFirst(xlsPath, datas);
+		ExcelWriter.writeFirstSheet(xlsPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsPath, Person.class);
 		check(list);
 	}
 
-	 @Test
+	@Test
 	public void schemaTest() {
-		ExcelWriter.writeFirst(xlsxPath, datas);
+		ExcelWriter.writeFirstSheet(xlsxPath, datas);
 		List<Person> list = ExcelReader.readFirstSheet(xlsxPath, Person.class);
 		check(list);
 	}
 
-	 @After
+	public void writeExists() {
+		WriteData[] datas = new WriteData[10];
+		datas[0] = new WriteData(0, 0, 1, "你好001", null);
+		datas[1] = new WriteData(0, 1, 2, "你好012", null);
+		datas[2] = new WriteData(0, 2, 3, "你好023", null);
+		datas[3] = new WriteData(0, 3, 4, "你好034", null);
+		datas[4] = new WriteData(0, 5, 5, "你好055", null);
+		datas[5] = new WriteData(1, 0, 1, "你好101", null);
+		datas[6] = new WriteData(1, 4, 3, "你好143", null);
+		datas[7] = new WriteData(2, 0, 1, "你好201", null);
+		ExcelWriter.writeExistsExcelData("C:\\Users\\Frank\\Desktop\\123.xlsx", "C:\\Users\\Frank\\Desktop\\222.xlsx", datas);
+	}
+
+	@After
 	public void after() {
 		new File(xlsPath).delete();
 		new File(xlsxPath).delete();

@@ -69,7 +69,7 @@ public class ExcelServletSupport {
 				throw new IllegalArgumentException("excel datas is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeFirst(response.getOutputStream(), version, datas);
+			ExcelWriter.writeFirstSheet(response.getOutputStream(), version, datas);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {
@@ -99,7 +99,7 @@ public class ExcelServletSupport {
 				throw new IllegalArgumentException("excel datas is empty!");
 			}
 			checkAndFill(response, excelName, version);
-			ExcelWriter.writeFirst(response.getOutputStream(), version, datas);
+			ExcelWriter.writeFirstSheet(response.getOutputStream(), version, datas);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {

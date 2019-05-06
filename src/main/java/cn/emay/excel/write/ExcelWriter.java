@@ -1,10 +1,15 @@
 package cn.emay.excel.write;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -18,9 +23,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import cn.emay.excel.common.ExcelVersion;
 import cn.emay.excel.common.schema.base.SheetSchema;
 import cn.emay.excel.write.data.SchemaSheetDataGetter;
+import cn.emay.excel.write.data.SheetDataGetter;
+import cn.emay.excel.write.data.WriteData;
 import cn.emay.excel.write.writer.SheetWriter;
 import cn.emay.excel.write.writer.impl.SchemaSheetWriter;
-import cn.emay.excel.write.data.SheetDataGetter;
 
 /**
  * Excel写
@@ -43,13 +49,13 @@ public class ExcelWriter {
 	 * @param datas
 	 *            数据集,按照顺序写入
 	 */
-	public static <D> void writeFirst(String excelAbsolutePath, List<D> datas) {
+	public static <D> void writeFirstSheet(String excelAbsolutePath, List<D> datas) {
 		if (datas == null || datas.size() == 0) {
 			throw new IllegalArgumentException("datas is null");
 		}
 		@SuppressWarnings("unchecked")
 		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
-		writeFirst(excelAbsolutePath, new ListSchemaSheetDataGetter<D>(datas, dataClass));
+		writeFirstSheet(excelAbsolutePath, new ListSchemaSheetDataGetter<D>(datas, dataClass));
 	}
 
 	/**
@@ -62,13 +68,13 @@ public class ExcelWriter {
 	 * @param datas
 	 *            写入的数据集
 	 */
-	public static <D> void writeFirst(OutputStream os, ExcelVersion version, List<D> datas) {
+	public static <D> void writeFirstSheet(OutputStream os, ExcelVersion version, List<D> datas) {
 		if (datas == null || datas.size() == 0) {
 			throw new IllegalArgumentException("datas is null");
 		}
 		@SuppressWarnings("unchecked")
 		Class<D> dataClass = (Class<D>) datas.get(0).getClass();
-		writeFirst(os, version, new ListSchemaSheetDataGetter<D>(datas, dataClass));
+		writeFirstSheet(os, version, new ListSchemaSheetDataGetter<D>(datas, dataClass));
 	}
 
 	/**
@@ -79,7 +85,7 @@ public class ExcelWriter {
 	 * @param datas
 	 *            数据集,按照顺序写入
 	 */
-	public static <D> void writeFirst(String excelAbsolutePath, SheetDataGetter<D> datas) {
+	public static <D> void writeFirstSheet(String excelAbsolutePath, SheetDataGetter<D> datas) {
 		if (datas == null) {
 			throw new IllegalArgumentException("datas is null");
 		}
@@ -98,7 +104,7 @@ public class ExcelWriter {
 	 * @param datas
 	 *            写入的数据集
 	 */
-	public static <D> void writeFirst(OutputStream os, ExcelVersion version, SheetDataGetter<D> datas) {
+	public static <D> void writeFirstSheet(OutputStream os, ExcelVersion version, SheetDataGetter<D> datas) {
 		if (datas == null) {
 			throw new IllegalArgumentException("datas is null");
 		}
@@ -115,7 +121,7 @@ public class ExcelWriter {
 	 * @param dataWriterByCustomSchema
 	 *            数据来源集合，每一个数据来源写入一个sheet
 	 */
-	public static <D> void writeFirst(String excelAbsolutePath, SheetSchema<D> sheetSchema, SheetDataGetter<D> dataWriter) {
+	public static <D> void writeFirstSheet(String excelAbsolutePath, SheetSchema<D> sheetSchema, SheetDataGetter<D> dataWriter) {
 		SheetWriter handler = new SchemaSheetWriter<D>(sheetSchema, dataWriter);
 		write(excelAbsolutePath, sheetSchema.getSheetSchemaParams().getCacheNumber(), handler);
 	}
@@ -130,7 +136,7 @@ public class ExcelWriter {
 	 * @param dataWriterByCustomSchema
 	 *            数据来源集合，每一个数据来源写入一个sheet
 	 */
-	public static <D> void writeFirst(OutputStream os, ExcelVersion version, SheetSchema<D> sheetSchema, SheetDataGetter<D> dataWriter) {
+	public static <D> void writeFirstSheet(OutputStream os, ExcelVersion version, SheetSchema<D> sheetSchema, SheetDataGetter<D> dataWriter) {
 		SheetWriter handler = new SchemaSheetWriter<D>(sheetSchema, dataWriter);
 		write(os, version, sheetSchema.getSheetSchemaParams().getCacheNumber(), handler);
 	}
@@ -377,16 +383,10 @@ public class ExcelWriter {
 		handler.begin(sheetIndex);
 		int rowIndex = 0;
 		while (handler.hasRow(rowIndex)) {
-			Row row = sheet.getRow(rowIndex);
-			if (row == null) {
-				row = sheet.createRow(rowIndex);
-			}
+			Row row = sheet.createRow(rowIndex);
 			handler.beginRow(rowIndex);
 			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
-				Cell cell = row.getCell(columnIndex);
-				if (cell == null) {
-					cell = row.createCell(columnIndex);
-				}
+				Cell cell = row.createCell(columnIndex);
 				cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
 				handler.writeCell(cell, rowIndex, columnIndex);
 			}
@@ -396,6 +396,166 @@ public class ExcelWriter {
 		handler.end(sheetIndex);
 	}
 
+	/**
+	 * 往已经存在的Excel文件中写入数据<br/>
+	 * 写完后重新生成一份文件<br/>
+	 * 大数据Excel禁用
+	 * 
+	 * @param fromExcelPath
+	 *            读取的Excel文件
+	 * @param toExcelPath
+	 *            Excel写入数据后，生成新的Excel文件
+	 * @param datas
+	 *            数据
+	 */
+	public static void writeExistsExcelData(String fromExcelPath, String toExcelPath, WriteData... datas) {
+		if (fromExcelPath == null) {
+			throw new IllegalArgumentException("fromExcelPath is null");
+		}
+		if (toExcelPath == null) {
+			throw new IllegalArgumentException("toExcelPath is null");
+		}
+		if (datas == null) {
+			throw new IllegalArgumentException("datas is null");
+		}
+		ExcelVersion version;
+		if (!new File(fromExcelPath).exists()) {
+			throw new IllegalArgumentException("fromExcelPath[" + fromExcelPath + "] is not exists");
+		}
+		if (fromExcelPath.endsWith(ExcelVersion.XLSX.getSuffix())) {
+			version = ExcelVersion.XLSX;
+		} else if (fromExcelPath.endsWith(ExcelVersion.XLS.getSuffix())) {
+			version = ExcelVersion.XLS;
+		} else {
+			throw new IllegalArgumentException("fromExcelPath[" + fromExcelPath + "] is not excel");
+		}
+		Map<Integer, Map<Integer, Map<Integer, WriteData>>> dataByCoordinate = new TreeMap<>();
+		for (WriteData data : datas) {
+			if (data == null) {
+				continue;
+			}
+			if (data.getSheetIndex() < 0) {
+				continue;
+			}
+			if (data.getRowIndex() < 0) {
+				continue;
+			}
+			if (data.getColumnIndex() < 0) {
+				continue;
+			}
+			Map<Integer, Map<Integer, WriteData>> oneSheetMap = dataByCoordinate.get(data.getSheetIndex());
+			if (oneSheetMap == null) {
+				oneSheetMap = new TreeMap<>();
+				dataByCoordinate.put(data.getSheetIndex(), oneSheetMap);
+			}
+			Map<Integer, WriteData> oneRowMap = oneSheetMap.get(data.getRowIndex());
+			if (oneRowMap == null) {
+				oneRowMap = new TreeMap<>();
+				oneSheetMap.put(data.getRowIndex(), oneRowMap);
+			}
+			oneRowMap.put(data.getColumnIndex(), data);
+		}
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		Workbook workbook = null;
+		boolean error = false;
+		File to = new File(toExcelPath);
+		File parent = to.getParentFile();
+		try {
+			fis = new FileInputStream(fromExcelPath);
+			if (ExcelVersion.XLSX.equals(version)) {
+				workbook = new XSSFWorkbook(fis);
+			} else {
+				workbook = new HSSFWorkbook(fis);
+			}
+			int maxSheetIndex = workbook.getNumberOfSheets() - 1;
+			for (Integer sheetIndex : dataByCoordinate.keySet()) {
+				Sheet sheet = null;
+				if (sheetIndex > maxSheetIndex) {
+					sheet = workbook.createSheet();
+					maxSheetIndex++;
+				} else {
+					sheet = workbook.getSheetAt(sheetIndex);
+				}
+				Map<Integer, Map<Integer, WriteData>> oneSheetMap = dataByCoordinate.get(sheetIndex);
+				for (Integer rowIndex : oneSheetMap.keySet()) {
+					Row row = sheet.getRow(rowIndex);
+					if (row == null) {
+						row = sheet.createRow(rowIndex);
+					}
+					Map<Integer, WriteData> oneRowMap = oneSheetMap.get(rowIndex);
+					for (Integer columnIndex : oneRowMap.keySet()) {
+						WriteData data = oneRowMap.get(columnIndex);
+						Cell cell = row.getCell(columnIndex);
+						if (cell == null) {
+							cell = row.createCell(columnIndex);
+						}
+						if (data.getData().getClass().isAssignableFrom(int.class)) {
+							ExcelWriterHelper.writeInt(cell, (int) data.getData());
+						} else if (data.getData().getClass().isAssignableFrom(Integer.class)) {
+							ExcelWriterHelper.writeInt(cell, (Integer) data.getData());
+						} else if (data.getData().getClass().isAssignableFrom(double.class)) {
+							ExcelWriterHelper.writeDouble(cell, (double) data.getData(), data.getExpressInt());
+						} else if (data.getData().getClass().isAssignableFrom(Double.class)) {
+							ExcelWriterHelper.writeDouble(cell, (Double) data.getData(), data.getExpressInt());
+						} else if (data.getData().getClass().isAssignableFrom(long.class)) {
+							ExcelWriterHelper.writeLong(cell, (long) data.getData());
+						} else if (data.getData().getClass().isAssignableFrom(Long.class)) {
+							ExcelWriterHelper.writeLong(cell, (Long) data.getData());
+						} else if (data.getData().getClass().isAssignableFrom(BigDecimal.class)) {
+							ExcelWriterHelper.writeBigDecimal(cell, (BigDecimal) data.getData(), data.getExpressInt());
+						} else if (data.getData().getClass().isAssignableFrom(Date.class)) {
+							ExcelWriterHelper.writeDate(cell, (Date) data.getData(), data.getExpress());
+						} else if (data.getData().getClass().isAssignableFrom(boolean.class)) {
+							ExcelWriterHelper.writeBoolean(cell, (boolean) data.getData());
+						} else if (data.getData().getClass().isAssignableFrom(Boolean.class)) {
+							ExcelWriterHelper.writeBoolean(cell, (Boolean) data.getData());
+						} else if (data.getData().getClass().isAssignableFrom(String.class)) {
+							ExcelWriterHelper.writeString(cell, (String) data.getData());
+						}
+					}
+				}
+			}
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+			fos = new FileOutputStream(to);
+			workbook.write(fos);
+			fos.flush();
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+					if (workbook.getClass().isAssignableFrom(SXSSFWorkbook.class)) {
+						((SXSSFWorkbook) workbook).dispose();
+					}
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				} finally {
+					if (error) {
+						to.delete();
+						parent.delete();
+					}
+				}
+			}
+		}
+	}
 }
 
 /**

@@ -198,10 +198,10 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 						ExcelWriterHelper.writeInt(cell, (Integer) obj);
 						length = getLength(obj);
 					} else if (field.getType().isAssignableFrom(double.class)) {
-						ExcelWriterHelper.writeDouble(cell, (double) obj, parseNumberExpress(columnSchema.getExpress()));
+						ExcelWriterHelper.writeDouble(cell, (double) obj, columnSchema.getExpressInt());
 						length = getLength(obj);
 					} else if (field.getType().isAssignableFrom(Double.class)) {
-						ExcelWriterHelper.writeDouble(cell, (Double) obj, parseNumberExpress(columnSchema.getExpress()));
+						ExcelWriterHelper.writeDouble(cell, (Double) obj, columnSchema.getExpressInt());
 						length = getLength(obj);
 					} else if (field.getType().isAssignableFrom(long.class)) {
 						ExcelWriterHelper.writeLong(cell, (long) obj);
@@ -210,7 +210,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 						ExcelWriterHelper.writeLong(cell, (Long) obj);
 						length = getLength(obj);
 					} else if (field.getType().isAssignableFrom(BigDecimal.class)) {
-						ExcelWriterHelper.writeBigDecimal(cell, (BigDecimal) obj, parseNumberExpress(columnSchema.getExpress()));
+						ExcelWriterHelper.writeBigDecimal(cell, (BigDecimal) obj, columnSchema.getExpressInt());
 						length = getLength(((BigDecimal) obj).doubleValue());
 					} else if (field.getType().isAssignableFrom(Date.class)) {
 						ExcelWriterHelper.writeDate(cell, (Date) obj, columnSchema.getExpress());
@@ -272,24 +272,6 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			return String.valueOf(obj).getBytes().length;
 		}
 		return 0;
-	}
-
-	/**
-	 * 解析schema的express小数点后个数
-	 * 
-	 * @param express
-	 *            表达式
-	 * @return
-	 */
-	private int parseNumberExpress(String express) {
-		int num = -1;
-		if (express != null && !"".equalsIgnoreCase(express.trim())) {
-			try {
-				return Integer.parseInt(express);
-			} catch (Exception e) {
-			}
-		}
-		return num;
 	}
 
 	/**
