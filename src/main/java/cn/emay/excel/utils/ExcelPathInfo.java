@@ -47,5 +47,4 @@ public class ExcelPathInfo {
 		this.inputStream = inputStream;
 	}
 
-
 }

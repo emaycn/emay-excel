@@ -11,7 +11,7 @@ import cn.emay.excel.write.data.SchemaSheetDataGetter;
  * @author Frank
  *
  */
-public class PersonSchemaDataGetter extends PersonDataGetter implements SchemaSheetDataGetter<Person>{
+public class PersonSchemaDataGetter extends PersonDataGetter implements SchemaSheetDataGetter<Person> {
 
 	public PersonSchemaDataGetter(List<Person> datas) {
 		super(datas);

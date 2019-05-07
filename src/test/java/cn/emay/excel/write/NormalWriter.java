@@ -100,7 +100,7 @@ public class NormalWriter implements SheetWriter {
 
 	@Override
 	public void end(int sheetIndex) {
-		
+
 	}
 
 }

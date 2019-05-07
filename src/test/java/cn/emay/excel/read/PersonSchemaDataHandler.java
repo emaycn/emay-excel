@@ -9,7 +9,7 @@ import cn.emay.excel.read.handler.SchemaSheetDataHandler;
  * @author Frank
  *
  */
-public class PersonSchemaDataHandler extends PersonDataHandler implements SchemaSheetDataHandler<Person>{
+public class PersonSchemaDataHandler extends PersonDataHandler implements SchemaSheetDataHandler<Person> {
 
 	@Override
 	public SheetSchema getSheetSchema() {

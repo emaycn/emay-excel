@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ExcelSheet {
-	
+
 	/*-------------read---------------*/
 
 	/**
@@ -56,9 +56,9 @@ public @interface ExcelSheet {
 	 * @return
 	 */
 	String readColumnBy() default "Index";
-	
+
 	/*-------------write---------------*/
-	
+
 	/**
 	 * 表名<br/>
 	 * 
@@ -80,7 +80,8 @@ public @interface ExcelSheet {
 	/**
 	 * 写入缓存条数<br/>
 	 * 
-	 * - writer:当写xlsx时，如果writeCacheNumber>=1000，实时刷盘；如果writeCacheNumber<1000，内存构建完成后刷盘；<br/>
+	 * -
+	 * writer:当写xlsx时，如果writeCacheNumber>=1000，实时刷盘；如果writeCacheNumber<1000，内存构建完成后刷盘；<br/>
 	 * 
 	 * @return
 	 */

@@ -6,8 +6,6 @@ import java.util.Map;
 
 import cn.emay.excel.common.schema.annotation.ExcelColumn;
 import cn.emay.excel.common.schema.annotation.ExcelSheet;
-import cn.emay.excel.common.schema.base.ColumnSchema;
-import cn.emay.excel.common.schema.base.SheetSchemaParams;
 
 /**
  * 表定义

@@ -12,7 +12,7 @@ import cn.emay.excel.common.schema.annotation.ExcelSheet;
  * @author Frank
  *
  */
-@ExcelSheet(isNeedBorder= true)
+@ExcelSheet(isNeedBorder = true)
 public class Person {
 
 	/**
@@ -115,7 +115,7 @@ public class Person {
 	public void setHasGlass(Boolean hasGlass) {
 		this.hasGlass = hasGlass;
 	}
-	
+
 	public BigDecimal getMoney() {
 		return money;
 	}

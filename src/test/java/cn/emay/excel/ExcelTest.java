@@ -27,7 +27,7 @@ import cn.emay.excel.write.data.WriteData;
 /**
  * 5组测试:<br/>
  * 1.normal--基于writer/reader的测试<br/>
- * 2.schema--基于自定义writer/reader的schemaHandler测试<br/> 
+ * 2.schema--基于自定义writer/reader的schemaHandler测试<br/>
  * 3.annscheman--基于注解的writer/reader的Handler测试<br/>
  * 4.data--基于注解的writer/reader的数据/class测试<br/>
  * 5.coordinate--基于坐标的精准读取测试<br/>
@@ -151,7 +151,7 @@ public class ExcelTest {
 		List<Person> list = red.getDatas();
 		check(list);
 	}
-	
+
 	@Test
 	public void schemaXlsTest() {
 		ExcelWriter.write(xlsPath, new PersonSchemaDataGetter(datas));
@@ -188,7 +188,7 @@ public class ExcelTest {
 	public void coordinateXlsxTest() {
 		ExcelWriter.write(xlsxPath, new NormalWriter(titles, datas));
 		ExcelWriter.writeByCoordinate(xlsxPath, xlsxPathTo, writedDatas);
-		List<String> resus = ExcelReader.readByCoordinate(String.class,xlsxPathTo, coordinates);
+		List<String> resus = ExcelReader.readByCoordinate(String.class, xlsxPathTo, coordinates);
 		for (int i = 0; i < 8; i++) {
 			Assert.assertEquals(resus.get(i), writedDatas[i].getData());
 		}
@@ -198,7 +198,7 @@ public class ExcelTest {
 	public void coordinateXlsTest() {
 		ExcelWriter.write(xlsPath, new NormalWriter(titles, datas));
 		ExcelWriter.writeByCoordinate(xlsPath, xlsPathTo, writedDatas);
-		List<String> resus = ExcelReader.readByCoordinate(String.class,xlsPathTo, coordinates);
+		List<String> resus = ExcelReader.readByCoordinate(String.class, xlsPathTo, coordinates);
 		for (int i = 0; i < 8; i++) {
 			Assert.assertEquals(resus.get(i), writedDatas[i].getData());
 		}
