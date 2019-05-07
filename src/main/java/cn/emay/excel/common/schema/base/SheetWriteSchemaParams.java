@@ -65,6 +65,44 @@ public class SheetWriteSchemaParams {
 	 */
 	private boolean isAutoWrap = true;
 
+	/**
+	 * 
+	 */
+	public SheetWriteSchemaParams() {
+
+	}
+
+	/**
+	 * 
+	 * @param writeSheetName
+	 *            如果不为空，将表名写入Excel；
+	 * @param isWriteTile
+	 *            是否将每个字段的title写在第一行；
+	 * @param cacheNumber
+	 *            写入缓存条数,当写xlsx时，如果cacheNumber>=1000，实时刷盘；如果writeCacheNumber<1000，内存构建完成后刷盘；
+	 * @param isAutoWidth
+	 *            是否自适应宽度,每一列取最长数据宽度的125%，有微量性能损失；
+	 * @param titleRgbColor
+	 *            RGB自定义标题背景色设置，默认全白；
+	 * @param contentRgbColor
+	 *            RGB自定义内容背景色设置，默认全白；
+	 * @param isNeedBorder
+	 *            是否需要单元格边框画线；
+	 * @param isAutoWrap
+	 *            是否自动换行
+	 */
+	public SheetWriteSchemaParams(String writeSheetName, boolean isWriteTile, int cacheNumber, boolean isAutoWidth, int[] titleRgbColor, int[] contentRgbColor, boolean isNeedBorder,
+			boolean isAutoWrap) {
+		this.writeSheetName = writeSheetName;
+		this.isWriteTile = isWriteTile;
+		this.cacheNumber = cacheNumber;
+		this.isAutoWidth = isAutoWidth;
+		this.titleRgbColor = titleRgbColor;
+		this.contentRgbColor = contentRgbColor;
+		this.isNeedBorder = isNeedBorder;
+		this.isAutoWrap = isAutoWrap;
+	}
+
 	public String getWriteSheetName() {
 		return writeSheetName;
 	}

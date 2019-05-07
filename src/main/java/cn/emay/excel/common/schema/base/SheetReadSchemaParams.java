@@ -39,6 +39,31 @@ public class SheetReadSchemaParams {
 	private String readColumnBy = "Index";
 
 	/**
+	 * 
+	 */
+	public SheetReadSchemaParams() {
+
+	}
+
+	/**
+	 * 
+	 * @param readTitleRowIndex
+	 *            从哪一行读取标题，如果小于0则不读取标题，默认为0。【如果readColumnBy=Title，则不可以小于0】
+	 * @param readDataStartRowIndex
+	 *            从哪一行开始读取，默认index=1
+	 * @param readDataEndRowIndex
+	 *            读取到哪一行结束，如果小于0则全部读取，默认-1
+	 * @param readColumnBy
+	 *            匹配数据根据，默认根据列Index进行数据匹配。如果=Ttile，【则readtitleRowIndex不可以小于0】
+	 */
+	public SheetReadSchemaParams(int readTitleRowIndex, int readDataStartRowIndex, int readDataEndRowIndex, String readColumnBy) {
+		this.readTitleRowIndex = readTitleRowIndex;
+		this.readDataStartRowIndex = readDataStartRowIndex;
+		this.readDataEndRowIndex = readDataEndRowIndex;
+		this.readColumnBy = readColumnBy;
+	}
+
+	/**
 	 * 是否按照列序号读取数据
 	 * 
 	 * @return
