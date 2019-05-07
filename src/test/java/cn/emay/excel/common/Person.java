@@ -12,7 +12,7 @@ import cn.emay.excel.common.schema.annotation.ExcelSheet;
  * @author Frank
  *
  */
-@ExcelSheet(isNeedBorder = true)
+@ExcelSheet(isNeedBorder = true, contentRgbColor = { 220, 230, 241 }, titleRgbColor = { 250, 191, 143 })
 public class Person {
 
 	/**
