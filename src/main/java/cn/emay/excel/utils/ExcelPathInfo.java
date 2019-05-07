@@ -31,6 +31,11 @@ public class ExcelPathInfo {
 		this.setInputStream(inputStream);
 	}
 
+	/**
+	 * 版本
+	 * 
+	 * @return
+	 */
 	public ExcelVersion getVersion() {
 		return version;
 	}
@@ -39,6 +44,11 @@ public class ExcelPathInfo {
 		this.version = version;
 	}
 
+	/**
+	 * 文件输入流
+	 * 
+	 * @return
+	 */
 	public InputStream getInputStream() {
 		return inputStream;
 	}

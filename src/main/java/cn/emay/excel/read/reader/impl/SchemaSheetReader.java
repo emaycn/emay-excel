@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.poi.ss.usermodel.Cell;
 
 import cn.emay.excel.common.schema.base.ColumnSchema;
+import cn.emay.excel.common.schema.base.SheetReadSchemaParams;
 import cn.emay.excel.common.schema.base.SheetSchema;
 import cn.emay.excel.read.handler.SchemaSheetDataHandler;
 import cn.emay.excel.read.handler.SheetDataHandler;
@@ -30,6 +31,10 @@ public class SchemaSheetReader<D> implements SheetReader {
 	 * 定义
 	 */
 	private SheetSchema schema;
+	/**
+	 * 读参数集
+	 */
+	private SheetReadSchemaParams readSchemaParams;
 	/**
 	 * 数据处理器
 	 */
@@ -81,13 +86,14 @@ public class SchemaSheetReader<D> implements SheetReader {
 		if (schema == null) {
 			throw new IllegalArgumentException("schema is null");
 		}
-		schema.check();
+		schema.checkRead();
 		if (dataReader == null) {
 			throw new IllegalArgumentException("dataReader is null");
 		}
 		this.schema = schema;
 		this.dataReader = dataReader;
-		this.readByIndex = schema.getSheetSchemaParams().readByIndex();
+		this.readSchemaParams = schema.getSheetReadSchemaParams();
+		this.readByIndex = readSchemaParams.readByIndex();
 		Set<String> titles = new HashSet<>();
 		Set<Integer> indexs = new HashSet<>();
 		Field[] fieldArray = dataReader.getDataClass().getDeclaredFields();
@@ -119,7 +125,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 
 	@Override
 	public int getEndReadRowIndex() {
-		return this.schema.getSheetSchemaParams().getReadDataEndRowIndex();
+		return this.readSchemaParams.getReadDataEndRowIndex();
 	}
 
 	@Override
@@ -130,7 +136,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 
 	@Override
 	public void beginRow(int rowIndex) {
-		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
+		if (rowIndex < this.readSchemaParams.getReadDataStartRowIndex()) {
 			return;
 		}
 		curData = ExcelUtils.newData(dataReader.getDataClass());
@@ -138,11 +144,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 
 	@Override
 	public void handleXlsCell(int rowIndex, int columnIndex, Cell cell) {
-		if (readByIndex == false && rowIndex == this.schema.getSheetSchemaParams().getReadTitleRowIndex()) {
+		if (readByIndex == false && rowIndex == this.readSchemaParams.getReadTitleRowIndex()) {
 			String title = ExcelReadUtils.readString(cell);
 			colTitles.put(columnIndex, title == null ? "" : title);
 		}
-		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
+		if (rowIndex < this.readSchemaParams.getReadDataStartRowIndex()) {
 			return;
 		}
 		if (cell == null) {
@@ -170,11 +176,11 @@ public class SchemaSheetReader<D> implements SheetReader {
 
 	@Override
 	public void handleXlsxCell(int rowIndex, int columnIndex, int formatIndex, String value) {
-		if (readByIndex == false && rowIndex == this.schema.getSheetSchemaParams().getReadTitleRowIndex()) {
+		if (readByIndex == false && rowIndex == this.readSchemaParams.getReadTitleRowIndex()) {
 			String title = ExcelReadUtils.readString(value);
 			colTitles.put(columnIndex, title == null ? "" : title);
 		}
-		if (rowIndex < this.schema.getSheetSchemaParams().getReadDataStartRowIndex()) {
+		if (rowIndex < this.readSchemaParams.getReadDataStartRowIndex()) {
 			return;
 		}
 		if (value == null) {

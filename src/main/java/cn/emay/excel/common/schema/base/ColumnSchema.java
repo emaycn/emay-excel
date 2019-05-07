@@ -49,7 +49,8 @@ public class ColumnSchema {
 	 * @param title
 	 *            列名
 	 * @param express
-	 *            列的数据转换表达式
+	 *            表达式(写入日期时：格式化日期;
+	 *            写入Double、BigDecimal时：是保留的小数点后数字个数;读取日期时：如果是String写入，则根据此表达式进行格式化读取;读取Double、BigDecimal时，是保留的小数点后数字个数；)
 	 */
 	public ColumnSchema(int index, String title, String express) {
 		this.index = index;
@@ -57,26 +58,61 @@ public class ColumnSchema {
 		this.express = express;
 	}
 
+	/**
+	 * 获取标题
+	 * 
+	 * @return
+	 */
 	public String getTitle() {
 		return title;
 	}
 
+	/**
+	 * 传入标题
+	 * 
+	 * @param title
+	 *            标题
+	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	/**
+	 * 获取表达式<br/>
+	 * 写入日期时：格式化日期;
+	 * 写入Double、BigDecimal时：是保留的小数点后数字个数;读取日期时：如果是String写入，则根据此表达式进行格式化读取;读取Double、BigDecimal时，是保留的小数点后数字个数；
+	 * 
+	 * @return
+	 */
 	public String getExpress() {
 		return express;
 	}
 
+	/**
+	 * 传入表达式
+	 * 
+	 * @param express
+	 *            表达式(写入日期时：格式化日期;写入Double、BigDecimal时：是保留的小数点后数字个数;读取日期时：如果是String写入，则根据此表达式进行格式化读取;读取Double、BigDecimal时，是保留的小数点后数字个数；)
+	 */
 	public void setExpress(String express) {
 		this.express = express;
 	}
 
+	/**
+	 * 获取列序号
+	 * 
+	 * @return
+	 */
 	public int getIndex() {
 		return index;
 	}
 
+	/**
+	 * 传入列序号
+	 * 
+	 * @param index
+	 *            列序号
+	 */
 	public void setIndex(int index) {
 		this.index = index;
 	}

@@ -20,7 +20,11 @@ public class SheetSchema {
 	/**
 	 * 表定义的参数集
 	 */
-	private SheetSchemaParams sheetSchemaParams;
+	private SheetWriteSchemaParams writeSchemaParams;
+	/**
+	 * 表定义的参数集
+	 */
+	private SheetReadSchemaParams readSchemaParams;
 	/**
 	 * 列定义，根据字段名匹配
 	 */
@@ -49,24 +53,58 @@ public class SheetSchema {
 
 	/**
 	 * 
-	 * @param sheetSchemaParams
-	 *            表定义参数
+	 * @param readSchemaParams
+	 *            表定义读参数
 	 * @param columnSchemaByFieldNames
 	 *            列定义，根据字段名匹配
 	 */
-	public SheetSchema(SheetSchemaParams sheetSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
-		this.setSheetSchemaParams(sheetSchemaParams);
+	public SheetSchema(SheetWriteSchemaParams writeSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
+		this(writeSchemaParams, null, columnSchemaByFieldNames);
+	}
+
+	/**
+	 * 
+	 * @param writeSchemaParams
+	 *            表定义写参数
+	 * @param columnSchemaByFieldNames
+	 *            列定义，根据字段名匹配
+	 */
+	public SheetSchema(SheetReadSchemaParams readSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
+		this(null, readSchemaParams, columnSchemaByFieldNames);
+	}
+
+	/**
+	 * @param writeSchemaParams
+	 *            表定义写参数
+	 * @param readSchemaParams
+	 *            表定义读参数
+	 * @param columnSchemaByFieldNames
+	 *            列定义，根据字段名匹配
+	 */
+	public SheetSchema(SheetWriteSchemaParams writeSchemaParams, SheetReadSchemaParams readSchemaParams, Map<String, ColumnSchema> columnSchemaByFieldNames) {
+		this.writeSchemaParams = writeSchemaParams;
+		this.readSchemaParams = readSchemaParams;
 		this.setColumnSchemas(columnSchemaByFieldNames);
 	}
 
 	/**
-	 * 传入表定义
+	 * 传入表定义写参数集
 	 * 
-	 * @param sheetSchemaParams
-	 *            表定义对象
+	 * @param writeSchemaParams
+	 *            表定义写参数集
 	 */
-	public void setSheetSchemaParams(SheetSchemaParams sheetSchemaParams) {
-		this.sheetSchemaParams = sheetSchemaParams;
+	public void setSheetWriteSchemaParams(SheetWriteSchemaParams writeSchemaParams) {
+		this.writeSchemaParams = writeSchemaParams;
+	}
+
+	/**
+	 * 传入表定义读参数集
+	 * 
+	 * @param readSchemaParams
+	 *            表定义读参数集
+	 */
+	public void setSheetWriteSchemaParams(SheetReadSchemaParams readSchemaParams) {
+		this.readSchemaParams = readSchemaParams;
 	}
 
 	/**
@@ -76,19 +114,20 @@ public class SheetSchema {
 	 *            表定义注解
 	 */
 	public void setSheetSchemaParams(ExcelSheet sheet) {
-		this.sheetSchemaParams = new SheetSchemaParams();
-		this.sheetSchemaParams.setAutoWidth(sheet.isAutoWidth());
-		this.sheetSchemaParams.setAutoWrap(sheet.isAutoWrap());
-		this.sheetSchemaParams.setCacheNumber(sheet.cacheNumber());
-		this.sheetSchemaParams.setContentRgbColor(sheet.contentRgbColor());
-		this.sheetSchemaParams.setNeedBorder(sheet.isNeedBorder());
-		this.sheetSchemaParams.setReadColumnBy(sheet.readColumnBy());
-		this.sheetSchemaParams.setReadDataEndRowIndex(sheet.readDataEndRowIndex());
-		this.sheetSchemaParams.setReadDataStartRowIndex(sheet.readDataStartRowIndex());
-		this.sheetSchemaParams.setReadTitleRowIndex(sheet.readTitleRowIndex());
-		this.sheetSchemaParams.setTitleRgbColor(sheet.titleRgbColor());
-		this.sheetSchemaParams.setWriteSheetName(sheet.writeSheetName());
-		this.sheetSchemaParams.setWriteTile(sheet.isWriteTile());
+		this.writeSchemaParams = new SheetWriteSchemaParams();
+		this.writeSchemaParams.setAutoWidth(sheet.isAutoWidth());
+		this.writeSchemaParams.setAutoWrap(sheet.isAutoWrap());
+		this.writeSchemaParams.setCacheNumber(sheet.cacheNumber());
+		this.writeSchemaParams.setContentRgbColor(sheet.contentRgbColor());
+		this.writeSchemaParams.setNeedBorder(sheet.isNeedBorder());
+		this.writeSchemaParams.setTitleRgbColor(sheet.titleRgbColor());
+		this.writeSchemaParams.setWriteSheetName(sheet.writeSheetName());
+		this.writeSchemaParams.setWriteTile(sheet.isWriteTile());
+		this.readSchemaParams = new SheetReadSchemaParams();
+		this.readSchemaParams.setReadColumnBy(sheet.readColumnBy());
+		this.readSchemaParams.setReadDataEndRowIndex(sheet.readDataEndRowIndex());
+		this.readSchemaParams.setReadDataStartRowIndex(sheet.readDataStartRowIndex());
+		this.readSchemaParams.setReadTitleRowIndex(sheet.readTitleRowIndex());
 	}
 
 	/**
@@ -132,12 +171,21 @@ public class SheetSchema {
 	}
 
 	/**
-	 * 获取表定义
+	 * 获取表定义写参数集
 	 * 
 	 * @return
 	 */
-	public SheetSchemaParams getSheetSchemaParams() {
-		return this.sheetSchemaParams;
+	public SheetWriteSchemaParams getSheetWriteSchemaParams() {
+		return this.writeSchemaParams;
+	}
+
+	/**
+	 * 获取表定义读参数集
+	 * 
+	 * @return
+	 */
+	public SheetReadSchemaParams getSheetReadSchemaParams() {
+		return this.readSchemaParams;
 	}
 
 	/**
@@ -157,17 +205,29 @@ public class SheetSchema {
 	/**
 	 * 检测定义正确性
 	 */
-	public void check() {
-		if (this.sheetSchemaParams == null) {
-			throw new IllegalArgumentException("sheetSchema is null");
-		}
+	public void checkWrite() {
 		if (this.columnSchemas.size() == 0) {
 			throw new IllegalArgumentException("has not Column for field");
 		}
-		boolean readByIndex = this.sheetSchemaParams.readByIndex();
-		int readTitleRowIndex = this.sheetSchemaParams.getReadTitleRowIndex();
-		int readDataStartRowIndex = this.sheetSchemaParams.getReadDataStartRowIndex();
-		int readDataEndRowIndex = this.sheetSchemaParams.getReadDataEndRowIndex();
+		if (this.writeSchemaParams == null) {
+			throw new IllegalArgumentException("sheetSchema is null");
+		}
+	}
+
+	/**
+	 * 检测定义正确性
+	 */
+	public void checkRead() {
+		if (this.columnSchemas.size() == 0) {
+			throw new IllegalArgumentException("has not Column for field");
+		}
+		if (this.readSchemaParams == null) {
+			throw new IllegalArgumentException("readSchemaParams is null");
+		}
+		boolean readByIndex = this.readSchemaParams.readByIndex();
+		int readTitleRowIndex = this.readSchemaParams.getReadTitleRowIndex();
+		int readDataStartRowIndex = this.readSchemaParams.getReadDataStartRowIndex();
+		int readDataEndRowIndex = this.readSchemaParams.getReadDataEndRowIndex();
 		if (readByIndex == false && readTitleRowIndex < 0) {
 			throw new IllegalArgumentException("sheetSchemaParams's readColumnBy = Title and readTitleRowIndex < 0");
 		}

@@ -23,6 +23,11 @@ public enum ExcelVersion {
 		this.setSuffix(suffix);
 	}
 
+	/**
+	 * 获取后缀
+	 * 
+	 * @return
+	 */
 	public String getSuffix() {
 		return suffix;
 	}

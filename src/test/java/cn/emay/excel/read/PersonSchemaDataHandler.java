@@ -7,8 +7,8 @@ import java.util.Map;
 
 import cn.emay.excel.common.Person;
 import cn.emay.excel.common.schema.base.ColumnSchema;
+import cn.emay.excel.common.schema.base.SheetReadSchemaParams;
 import cn.emay.excel.common.schema.base.SheetSchema;
-import cn.emay.excel.common.schema.base.SheetSchemaParams;
 import cn.emay.excel.read.handler.SchemaSheetDataHandler;
 
 /**
@@ -20,12 +20,12 @@ public class PersonSchemaDataHandler implements SchemaSheetDataHandler<Person> {
 
 	@Override
 	public SheetSchema getSheetSchema() {
-		SheetSchemaParams sheetSchemaParams = new SheetSchemaParams();
+		SheetReadSchemaParams sheetSchemaParams = new SheetReadSchemaParams();
 		sheetSchemaParams.setReadTitleRowIndex(0);
 		sheetSchemaParams.setReadColumnBy("Index");
 		sheetSchemaParams.setReadDataStartRowIndex(1);
 		sheetSchemaParams.setReadDataEndRowIndex(-1);
-		Map<String, ColumnSchema> columnSchemaByFieldNames = new HashMap<String, ColumnSchema>();
+		Map<String, ColumnSchema> columnSchemaByFieldNames = new HashMap<String, ColumnSchema>(8);
 		columnSchemaByFieldNames.put("age", new ColumnSchema(0, "年龄", null));
 		columnSchemaByFieldNames.put("name", new ColumnSchema(1, "名字", null));
 		columnSchemaByFieldNames.put("brith", new ColumnSchema(2, "生日", "yyyy-MM-dd HH:mm:ss"));

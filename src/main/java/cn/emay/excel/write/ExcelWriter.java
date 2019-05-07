@@ -96,7 +96,7 @@ public class ExcelWriter {
 			SheetDataGetter<?> dataWriter = new ListSchemaSheetDataGetter(list, dataClass);
 			SheetSchema sheetSchema = new SheetSchema(dataClass);
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
-			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
+			cacheNumber = sheetSchema.getSheetWriteSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetWriteSchemaParams().getCacheNumber() : cacheNumber;
 		}
 		if (excelPath != null) {
 			write(excelPath, cacheNumber, handlers);
@@ -159,7 +159,7 @@ public class ExcelWriter {
 			SheetDataGetter<?> dataWriter = datas[i];
 			SheetSchema sheetSchema = new SheetSchema(datas[i].getDataClass());
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
-			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
+			cacheNumber = sheetSchema.getSheetWriteSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetWriteSchemaParams().getCacheNumber() : cacheNumber;
 		}
 		if (excelPath != null) {
 			write(excelPath, cacheNumber, handlers);
@@ -220,7 +220,7 @@ public class ExcelWriter {
 			SheetDataGetter<?> dataWriter = datas[i];
 			SheetSchema sheetSchema = datas[i].getSheetSchema();
 			handlers[i] = new SchemaSheetWriter(sheetSchema, dataWriter);
-			cacheNumber = sheetSchema.getSheetSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetSchemaParams().getCacheNumber() : cacheNumber;
+			cacheNumber = sheetSchema.getSheetWriteSchemaParams().getCacheNumber() > cacheNumber ? sheetSchema.getSheetWriteSchemaParams().getCacheNumber() : cacheNumber;
 		}
 		if (excelPath != null) {
 			write(excelPath, cacheNumber, handlers);

@@ -7,7 +7,7 @@ import java.util.Map;
 import cn.emay.excel.common.Person;
 import cn.emay.excel.common.schema.base.ColumnSchema;
 import cn.emay.excel.common.schema.base.SheetSchema;
-import cn.emay.excel.common.schema.base.SheetSchemaParams;
+import cn.emay.excel.common.schema.base.SheetWriteSchemaParams;
 import cn.emay.excel.write.data.SchemaSheetDataGetter;
 
 /**
@@ -27,7 +27,7 @@ public class PersonSchemaDataGetter implements SchemaSheetDataGetter<Person> {
 
 	@Override
 	public SheetSchema getSheetSchema() {
-		SheetSchemaParams sheetSchemaParams = new SheetSchemaParams();
+		SheetWriteSchemaParams sheetSchemaParams = new SheetWriteSchemaParams();
 		sheetSchemaParams.setAutoWidth(true);
 		sheetSchemaParams.setAutoWrap(true);
 		sheetSchemaParams.setCacheNumber(1000);
@@ -36,7 +36,7 @@ public class PersonSchemaDataGetter implements SchemaSheetDataGetter<Person> {
 		sheetSchemaParams.setTitleRgbColor(new int[] { 250, 191, 143 });
 		sheetSchemaParams.setWriteSheetName("person");
 		sheetSchemaParams.setWriteTile(true);
-		Map<String, ColumnSchema> columnSchemaByFieldNames = new HashMap<String, ColumnSchema>();
+		Map<String, ColumnSchema> columnSchemaByFieldNames = new HashMap<String, ColumnSchema>(8);
 		columnSchemaByFieldNames.put("age", new ColumnSchema(0, "年龄", null));
 		columnSchemaByFieldNames.put("name", new ColumnSchema(1, "名字", null));
 		columnSchemaByFieldNames.put("brith", new ColumnSchema(2, "生日", "yyyy-MM-dd HH:mm:ss"));
