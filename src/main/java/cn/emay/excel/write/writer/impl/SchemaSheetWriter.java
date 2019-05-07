@@ -103,7 +103,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			throw new IllegalArgumentException("writeData is null");
 		}
 		this.writeData = writeData;
-//		this.schema = schema;
+		// this.schema = schema;
 		this.writeSchemaParams = schema.getSheetWriteSchemaParams();
 		this.isContentNeedColor = !Arrays.equals(writeSchemaParams.getContentRgbColor(), DEFAULT_RGB_COLOR);
 		this.isTitleNeedColor = !Arrays.equals(writeSchemaParams.getTitleRgbColor(), DEFAULT_RGB_COLOR);
@@ -199,11 +199,11 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 					}
 				}
 			} catch (IllegalArgumentException e) {
-				throw new IllegalArgumentException("sheet(" + writeSchemaParams.getWriteSheetName() + ")[" + sheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex
-						+ "] get value from [" + field.getName() + "] and write error", e);
+				throw new IllegalArgumentException("sheet(" + writeSchemaParams.getWriteSheetName() + ")[" + sheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] get value from ["
+						+ field.getName() + "] and write error", e);
 			} catch (IllegalAccessException e) {
-				throw new IllegalArgumentException("sheet(" + writeSchemaParams.getWriteSheetName() + ")[" + sheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex
-						+ "] get value from [" + field.getName() + "] and write error", e);
+				throw new IllegalArgumentException("sheet(" + writeSchemaParams.getWriteSheetName() + ")[" + sheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] get value from ["
+						+ field.getName() + "] and write error", e);
 			}
 		}
 		if (writeSchemaParams.isAutoWidth()) {
@@ -252,12 +252,12 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			if (cell.getSheet().getWorkbook().getClass().isAssignableFrom(HSSFWorkbook.class)) {
 				HSSFPalette palette = ((HSSFWorkbook) cell.getSheet().getWorkbook()).getCustomPalette();
 				if (isTitleNeedColor) {
-					palette.setColorAtIndex(HSSFColorPredefined.GREY_25_PERCENT.getIndex(), (byte) writeSchemaParams.getTitleRgbColor()[0],
-							(byte) writeSchemaParams.getTitleRgbColor()[1], (byte) writeSchemaParams.getTitleRgbColor()[2]);
+					palette.setColorAtIndex(HSSFColorPredefined.GREY_25_PERCENT.getIndex(), (byte) writeSchemaParams.getTitleRgbColor()[0], (byte) writeSchemaParams.getTitleRgbColor()[1],
+							(byte) writeSchemaParams.getTitleRgbColor()[2]);
 				}
 				if (isContentNeedColor) {
-					palette.setColorAtIndex(HSSFColorPredefined.GREY_40_PERCENT.getIndex(), (byte) writeSchemaParams.getContentRgbColor()[0],
-							(byte) writeSchemaParams.getContentRgbColor()[1], (byte) writeSchemaParams.getContentRgbColor()[2]);
+					palette.setColorAtIndex(HSSFColorPredefined.GREY_40_PERCENT.getIndex(), (byte) writeSchemaParams.getContentRgbColor()[0], (byte) writeSchemaParams.getContentRgbColor()[1],
+							(byte) writeSchemaParams.getContentRgbColor()[2]);
 				}
 			}
 		}
@@ -270,8 +270,8 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 				if (cell.getSheet().getWorkbook().getClass().isAssignableFrom(HSSFWorkbook.class)) {
 					style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 				} else {
-					((XSSFCellStyle) style).setFillForegroundColor(new XSSFColor(new java.awt.Color(writeSchemaParams.getTitleRgbColor()[0],
-							writeSchemaParams.getTitleRgbColor()[1], writeSchemaParams.getTitleRgbColor()[2])));
+					((XSSFCellStyle) style).setFillForegroundColor(
+							new XSSFColor(new java.awt.Color(writeSchemaParams.getTitleRgbColor()[0], writeSchemaParams.getTitleRgbColor()[1], writeSchemaParams.getTitleRgbColor()[2])));
 				}
 				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			}
@@ -279,8 +279,8 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			if (cell.getSheet().getWorkbook().getClass().isAssignableFrom(HSSFWorkbook.class)) {
 				style.setFillForegroundColor(IndexedColors.GREY_40_PERCENT.getIndex());
 			} else {
-				((XSSFCellStyle) style).setFillForegroundColor(new XSSFColor(new java.awt.Color(writeSchemaParams.getContentRgbColor()[0],
-						writeSchemaParams.getContentRgbColor()[1], writeSchemaParams.getContentRgbColor()[2])));
+				((XSSFCellStyle) style).setFillForegroundColor(
+						new XSSFColor(new java.awt.Color(writeSchemaParams.getContentRgbColor()[0], writeSchemaParams.getContentRgbColor()[1], writeSchemaParams.getContentRgbColor()[2])));
 			}
 			style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		}

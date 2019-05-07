@@ -107,6 +107,11 @@ public class SheetWriteSchemaParams {
 		return writeSheetName;
 	}
 
+	/**
+	 * 
+	 * @param writeSheetName
+	 *            如果不为空，将表名写入Excel；
+	 */
 	public void setWriteSheetName(String writeSheetName) {
 		this.writeSheetName = writeSheetName;
 	}
@@ -115,6 +120,11 @@ public class SheetWriteSchemaParams {
 		return isWriteTile;
 	}
 
+	/**
+	 * 
+	 * @param isWriteTile
+	 *            是否将每个字段的title写在第一行；
+	 */
 	public void setWriteTile(boolean isWriteTile) {
 		this.isWriteTile = isWriteTile;
 	}
@@ -123,6 +133,11 @@ public class SheetWriteSchemaParams {
 		return cacheNumber;
 	}
 
+	/**
+	 * 
+	 * @param cacheNumber
+	 *            写入缓存条数,当写xlsx时，如果cacheNumber>=1000，实时刷盘；如果writeCacheNumber<1000，内存构建完成后刷盘；
+	 */
 	public void setCacheNumber(int cacheNumber) {
 		this.cacheNumber = cacheNumber;
 	}
@@ -131,6 +146,11 @@ public class SheetWriteSchemaParams {
 		return isAutoWidth;
 	}
 
+	/**
+	 * 
+	 * @param isAutoWidth
+	 *            是否自适应宽度,每一列取最长数据宽度的125%，有微量性能损失；
+	 */
 	public void setAutoWidth(boolean isAutoWidth) {
 		this.isAutoWidth = isAutoWidth;
 	}
@@ -139,6 +159,11 @@ public class SheetWriteSchemaParams {
 		return titleRgbColor;
 	}
 
+	/**
+	 * 
+	 * @param titleRgbColor
+	 *            RGB自定义标题背景色设置，默认全白；
+	 */
 	public void setTitleRgbColor(int[] titleRgbColor) {
 		this.titleRgbColor = titleRgbColor;
 	}
@@ -147,6 +172,11 @@ public class SheetWriteSchemaParams {
 		return contentRgbColor;
 	}
 
+	/**
+	 * 
+	 * @param contentRgbColor
+	 *            RGB自定义内容背景色设置，默认全白；
+	 */
 	public void setContentRgbColor(int[] contentRgbColor) {
 		this.contentRgbColor = contentRgbColor;
 	}
@@ -155,6 +185,11 @@ public class SheetWriteSchemaParams {
 		return isNeedBorder;
 	}
 
+	/**
+	 * 
+	 * @param isNeedBorder
+	 *            是否需要单元格边框画线；
+	 */
 	public void setNeedBorder(boolean isNeedBorder) {
 		this.isNeedBorder = isNeedBorder;
 	}
@@ -163,6 +198,11 @@ public class SheetWriteSchemaParams {
 		return isAutoWrap;
 	}
 
+	/**
+	 * 
+	 * @param isAutoWrap
+	 *            是否自动换行
+	 */
 	public void setAutoWrap(boolean isAutoWrap) {
 		this.isAutoWrap = isAutoWrap;
 	}
