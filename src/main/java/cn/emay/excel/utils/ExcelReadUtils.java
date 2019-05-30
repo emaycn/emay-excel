@@ -249,7 +249,7 @@ public class ExcelReadUtils {
 		switch (ctype) {
 		case NUMERIC:
 			double d = cell.getNumericCellValue();
-			int dd = new Double(d).intValue();
+			long dd = new Double(d).longValue();
 			if (d == new Double(dd).doubleValue()) {
 				str = String.valueOf(dd);
 			} else {
