@@ -278,6 +278,9 @@ public class ExcelReadUtils {
 	 * @return [可能为空]
 	 */
 	public static String readString(String value) {
+		if(value == null || "".equals(value)) {
+			return value;
+		}
 		// 先进行整数解析，如果匹配上了，直接返回
 		try {
 			Long lon = Long.valueOf(value);
