@@ -270,13 +270,27 @@ public class ExcelReadUtils {
 	}
 
 	/**
-	 * 读取String类型数据
+	 * 读取String类型数据<br/>
+	 * 浮点数精度问题通过Double.value()解决,会损失部分性能
 	 * 
 	 * @param value
 	 *            数据
 	 * @return [可能为空]
 	 */
 	public static String readString(String value) {
+		// 先进行整数解析，如果匹配上了，直接返回
+		try {
+			Long lon = Long.valueOf(value);
+			return lon.toString();
+		} catch (Exception e) {
+		}
+		// 再进行小数解析，如果匹配上了，直接返回
+		try {
+			Double dou = Double.valueOf(value);
+			return dou.toString();
+		} catch (Exception e) {
+		}
+		// 如果没有解析成数字，放回原值
 		return value;
 	}
 
