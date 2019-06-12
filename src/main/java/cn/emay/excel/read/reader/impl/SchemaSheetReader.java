@@ -175,7 +175,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 	}
 
 	@Override
-	public void handleXlsxCell(int rowIndex, int columnIndex, int formatIndex, String value) {
+	public void handleXlsxCell(int rowIndex, int columnIndex, String value) {
 		if (readByIndex == false && rowIndex == this.readSchemaParams.getReadTitleRowIndex()) {
 			String title = ExcelReadUtils.readString(value);
 			colTitles.put(columnIndex, title == null ? "" : title);
@@ -196,7 +196,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 		}
 		Object obj = null;
 		try {
-			obj = ExcelReadUtils.read(field.getType(), formatIndex, value, columnSchema.getExpress());
+			obj = ExcelReadUtils.read(field.getType(),value, columnSchema.getExpress());
 			if (obj != null) {
 				field.set(curData, obj);
 			}

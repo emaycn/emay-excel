@@ -71,9 +71,9 @@ public class ExcelTest {
 		titles.add("资产");
 
 		datas.add(new Person(-1, "李四lili", new Date(System.currentTimeMillis() - 1000L * 60L), 12345678901234L, 37.991, false, new BigDecimal(123.123123d)));
-		datas.add(new Person(Integer.MAX_VALUE, null, new Date(System.currentTimeMillis() / 10000L), 2345678901234L, 1.0, false, new BigDecimal("99.99123")));
+		datas.add(new Person(Integer.MAX_VALUE, null, new Date(System.currentTimeMillis() / 10000L), 2345678901234L, 1.00, false, new BigDecimal("99.99123")));
 		// Excel支持的数字最大为15位，超过15位会失去精度，所以存储时要转成文本存储。
-		datas.add(new Person(79, "" + Long.MAX_VALUE, new Date(System.currentTimeMillis() - 1000L * 6000L), 345678901234L, 2.3332, true, new BigDecimal(23444.3123d)));
+		datas.add(new Person(79, "0" + Long.MAX_VALUE, new Date(System.currentTimeMillis() - 1000L * 6000L), 345678901234L, 2.000, true, new BigDecimal(23444.3123d)));
 
 		writedDatas[0] = new WriteData(0, 0, 1, "001", null);
 		writedDatas[1] = new WriteData(0, 1, 2, "012", null);
@@ -97,7 +97,7 @@ public class ExcelTest {
 			// 写入null，会读出""
 			Assert.assertEquals(old.getName(), "".equals(ne.getName()) ? null : ne.getName());
 			Assert.assertEquals(old.getAge(), ne.getAge());
-			Assert.assertEquals(old.getBrith(), ne.getBrith());
+			Assert.assertEquals(old.getBrith().toString(), ne.getBrith().toString());
 			Assert.assertEquals(old.getHasGlass(), ne.getHasGlass());
 			Assert.assertEquals(old.getMoney().setScale(4, BigDecimal.ROUND_HALF_UP).toString(), ne.getMoney().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
 			Assert.assertEquals(new BigDecimal(old.getScore()).setScale(2, BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(old.getScore()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
@@ -185,20 +185,20 @@ public class ExcelTest {
 	}
 
 	@Test
-	public void coordinateXlsxTest() {
-		ExcelWriter.write(xlsxPath, new NormalWriter(titles, datas));
-		ExcelWriter.writeByCoordinate(xlsxPath, xlsxPathTo, writedDatas);
-		List<String> resus = ExcelReader.readByCoordinate(String.class, xlsxPathTo, coordinates);
+	public void coordinateXlsTest() {
+		ExcelWriter.write(xlsPath, new NormalWriter(titles, datas));
+		ExcelWriter.writeByCoordinate(xlsPath, xlsPathTo, writedDatas);
+		List<String> resus = ExcelReader.readByCoordinate(String.class, xlsPathTo, coordinates);
 		for (int i = 0; i < 8; i++) {
 			Assert.assertEquals(resus.get(i), writedDatas[i].getData());
 		}
 	}
 
 	@Test
-	public void coordinateXlsTest() {
-		ExcelWriter.write(xlsPath, new NormalWriter(titles, datas));
-		ExcelWriter.writeByCoordinate(xlsPath, xlsPathTo, writedDatas);
-		List<String> resus = ExcelReader.readByCoordinate(String.class, xlsPathTo, coordinates);
+	public void coordinateXlsxTest() {
+		ExcelWriter.write(xlsxPath, new NormalWriter(titles, datas));
+		ExcelWriter.writeByCoordinate(xlsxPath, xlsxPathTo, writedDatas);
+		List<String> resus = ExcelReader.readByCoordinate(String.class, xlsxPathTo, coordinates);
 		for (int i = 0; i < 8; i++) {
 			Assert.assertEquals(resus.get(i), writedDatas[i].getData());
 		}

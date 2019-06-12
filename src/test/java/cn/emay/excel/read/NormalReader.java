@@ -42,7 +42,7 @@ public class NormalReader implements SheetReader {
 	}
 
 	@Override
-	public void handleXlsxCell(int rowIndex, int columnIndex, int formatIndex, String value) {
+	public void handleXlsxCell(int rowIndex, int columnIndex,  String value) {
 		if (rowIndex == 0) {
 			titles.add(ExcelReadUtils.readString(value));
 		} else {
@@ -54,7 +54,7 @@ public class NormalReader implements SheetReader {
 				curr.setName(ExcelReadUtils.readString(value));
 				break;
 			case 2:
-				curr.setBrith(ExcelReadUtils.readDate(formatIndex, value, "yyyy-MM-dd HH:mm:ss"));
+				curr.setBrith(ExcelReadUtils.readDate(value, "yyyy-MM-dd HH:mm:ss"));
 				break;
 			case 3:
 				curr.setCreateTime(ExcelReadUtils.readLong(value));

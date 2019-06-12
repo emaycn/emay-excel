@@ -64,12 +64,10 @@ public interface SheetReader {
 	 *            行号
 	 * @param columnIndex
 	 *            列号[从0开始]
-	 * @param formatIndex
-	 *            列单元格数据类型
 	 * @param value
 	 *            列值
 	 */
-	void handleXlsxCell(int rowIndex, int columnIndex, int formatIndex, String value);
+	void handleXlsxCell(int rowIndex, int columnIndex, String value);
 
 	/**
 	 * 结束一行的读取

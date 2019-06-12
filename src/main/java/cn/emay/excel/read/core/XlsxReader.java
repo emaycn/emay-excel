@@ -11,6 +11,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -25,12 +27,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import cn.emay.excel.read.reader.SheetReader;
 import cn.emay.excel.utils.Word26Decimal;
 
-/**
- * XLSX读处理器
- * 
- * @author Frank
- *
- */
 public class XlsxReader extends BaseReader {
 
 	@Override
@@ -106,176 +102,194 @@ public class XlsxReader extends BaseReader {
 		}
 	}
 
-}
-
-/**
- * SAX方式读取ExcelSheet页
- * 
- * @author Frank
- *
- */
-class XlsxSheetHandler extends DefaultHandler {
-
-	/**
-	 * Sheet读处理器
-	 */
-	private SheetReader handler;
-	/**
-	 * SAX值列表
-	 */
-	private SharedStringsTable sst;
-	/**
-	 * Excel样式集
-	 */
-	private StylesTable stylesTable;
-	/**
-	 * 当前处理的sheet的Index
-	 */
-	private int sheetIndex;
-	/**
-	 * 当前处理的sheet的名字
-	 */
-	private String sheetName;
-	/**
-	 * 当前单元格值
-	 */
-	private String lastContents;
-	/**
-	 * 当前单元格是否是字符串
-	 */
-	private boolean nextIsS;
-	/**
-	 * 当前单元格列序号
-	 */
-	private int currColumnIndex = 0;
-	/**
-	 * 当前行号
-	 */
-	private int currRowIndex = 0;
-	/**
-	 * 上一行行号
-	 */
-	private int preRowIndex = -1;
-	/**
-	 * 单元格数据类型
-	 */
-	private int formatIndex = -1;
-	/**
-	 * 开始读取的行号
-	 */
-	private int startReadRowIndex = 0;
-	/**
-	 * 结束读取的行号
-	 */
-	private int endReadRowIndex = 0;
-
-	public XlsxSheetHandler(StylesTable stylesTable, SharedStringsTable sst, int sheetIndex, String sheetName, SheetReader handler) {
-		this.sst = sst;
-		this.handler = handler;
-		this.stylesTable = stylesTable;
-		this.startReadRowIndex = handler.getStartReadRowIndex();
-		this.endReadRowIndex = handler.getEndReadRowIndex();
-		this.sheetIndex = sheetIndex;
-		this.sheetName = sheetName;
-	}
-
-	@Override
-	public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
-		if ("row".equals(name)) {
-			currRowIndex = Integer.valueOf(attributes.getValue("r")) - 1;
-		}
-		if (endReadRowIndex >= 0 && currRowIndex > endReadRowIndex) {
-			handler.endRow(preRowIndex);
-			handler.end(sheetIndex, sheetName);
-			// 停止读取
-			throw new XlsxStopReadException();
-		}
-		if (startReadRowIndex > currRowIndex) {
-			return;
-		}
-		if ("row".equals(name)) {
-			if (preRowIndex != -1) {
-				handler.endRow(preRowIndex);
-			}
-			handler.beginRow(currRowIndex);
-			preRowIndex = currRowIndex;
-		}
-		if ("c".equals(name)) {
-			String coordinate = attributes.getValue("r");
-			String columnIndexStr = coordinate.replaceAll("\\d+", "");
-			currColumnIndex = (int) Word26Decimal.decode(columnIndexStr);
-			String cellType = attributes.getValue("t");
-			if (cellType != null && cellType.equals("s")) {
-				nextIsS = true;
-				formatIndex = -1;
-			} else {
-				nextIsS = false;
-				String cellStyleStr = attributes.getValue("s");
-				if (cellStyleStr != null) {
-					int styleIndex = Integer.parseInt(cellStyleStr);
-					XSSFCellStyle style = stylesTable.getStyleAt(styleIndex);
-					formatIndex = style.getDataFormat();
-				} else {
-					formatIndex = -1;
-				}
-			}
-		}
-		lastContents = "";
-	}
-
-	@Override
-	public void endElement(String uri, String localName, String name) throws SAXException {
-		if (startReadRowIndex > currRowIndex) {
-			return;
-		}
-		if (nextIsS) {
-			int idx = Integer.parseInt(lastContents);
-			lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
-			nextIsS = false;
-		}
-		if ("v".equals(name)) {
-			handler.handleXlsxCell(currRowIndex, currColumnIndex, formatIndex, lastContents);
-		}
-		// 兼容SXSSFWorkbook写的文件
-		if ("t".equals(name)) {
-			handler.handleXlsxCell(currRowIndex, currColumnIndex, formatIndex, lastContents);
-		}
-	}
-
-	@Override
-	public void startDocument() throws SAXException {
-		handler.begin(sheetIndex, sheetName);
-	}
-
-	@Override
-	public void endDocument() throws SAXException {
-		handler.endRow(currRowIndex);
-		handler.end(sheetIndex, sheetName);
-	}
-
-	@Override
-	public void characters(char[] ch, int start, int length) {
-		lastContents += new String(ch, start, length);
-	}
-
-}
-
-/**
- * 
- * SAX读取方式停止异常
- * 
- * @author Frank
- *
- */
-class XlsxStopReadException extends RuntimeException {
-
 	/**
 	 * 
+	 * SAX读取方式停止异常
+	 * 
+	 * @author Frank
+	 *
 	 */
-	private static final long serialVersionUID = 1L;
+	public static class XlsxStopReadException extends RuntimeException {
 
-	public XlsxStopReadException() {
-		super();
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public XlsxStopReadException() {
+			super();
+		}
+
 	}
 
+	/**
+	 * 数据类型
+	 * 
+	 * @author Frank
+	 *
+	 */
+	public static enum DataType {
+		BOOL, ERROR, FORMULA, INLINESTR, SSTINDEX, NUMBER,
+	}
+
+	/**
+	 * 处理器
+	 * 
+	 * @author Frank
+	 *
+	 */
+	public static class XlsxSheetHandler extends DefaultHandler {
+
+		private StylesTable stylesTable;
+		private SharedStringsTable sharedStringsTable;
+		private final DataFormatter formatter;
+
+		private String sheetName;
+		private int sheetIndex;
+
+		private SheetReader handler;
+		private int startReadRowIndex = 0;
+		private int endReadRowIndex = 0;
+
+		private short formatIndex;
+		private String formatString;
+		private DataType nextDataType;
+		private StringBuffer value;
+
+		private int currColumnIndex = 0;
+		private int currRowIndex = 0;
+		private int preRowIndex = -1;
+
+		private boolean vIsOpen;
+
+		public XlsxSheetHandler(StylesTable styles, SharedStringsTable strings, int sheetIndex, String sheetName, SheetReader handler) {
+			this.stylesTable = styles;
+			this.sharedStringsTable = strings;
+			this.formatter = new DataFormatter();
+
+			this.value = new StringBuffer();
+			this.nextDataType = DataType.NUMBER;
+
+			this.handler = handler;
+			this.startReadRowIndex = handler.getStartReadRowIndex();
+			this.endReadRowIndex = handler.getEndReadRowIndex();
+			this.sheetIndex = sheetIndex;
+			this.sheetName = sheetName;
+		}
+
+		public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
+			if ("row".equals(name)) {
+				currRowIndex = Integer.valueOf(attributes.getValue("r")) - 1;
+			}
+			if (endReadRowIndex >= 0 && currRowIndex > endReadRowIndex) {
+				handler.endRow(preRowIndex);
+				handler.end(sheetIndex, sheetName);
+				// 停止读取
+				throw new XlsxStopReadException();
+			}
+			if (startReadRowIndex > currRowIndex) {
+				return;
+			}
+			if ("row".equals(name)) {
+				if (preRowIndex != -1) {
+					handler.endRow(preRowIndex);
+				}
+				handler.beginRow(currRowIndex);
+				preRowIndex = currRowIndex;
+			}
+
+			if ("inlineStr".equals(name) || "v".equals(name) || "t".equals(name)) {
+				vIsOpen = true;
+				value.setLength(0);
+			} else if ("c".equals(name)) {
+				String coordinate = attributes.getValue("r");
+				String columnIndexStr = coordinate.replaceAll("\\d+", "");
+				currColumnIndex = (int) Word26Decimal.decode(columnIndexStr);
+
+				this.nextDataType = DataType.NUMBER;
+				this.formatIndex = -1;
+				this.formatString = null;
+				String cellType = attributes.getValue("t");
+				String cellStyleStr = attributes.getValue("s");
+				if ("b".equals(cellType))
+					nextDataType = DataType.BOOL;
+				else if ("e".equals(cellType))
+					nextDataType = DataType.ERROR;
+				else if ("inlineStr".equals(cellType))
+					nextDataType = DataType.INLINESTR;
+				else if ("s".equals(cellType))
+					nextDataType = DataType.SSTINDEX;
+				else if ("str".equals(cellType))
+					nextDataType = DataType.FORMULA;
+				else if (cellStyleStr != null) {
+					int styleIndex = Integer.parseInt(cellStyleStr);
+					XSSFCellStyle style = stylesTable.getStyleAt(styleIndex);
+					this.formatIndex = style.getDataFormat();
+					this.formatString = style.getDataFormatString();
+					if (this.formatString == null)
+						this.formatString = BuiltinFormats.getBuiltinFormat(this.formatIndex);
+				}
+			}
+
+		}
+
+		public void endElement(String uri, String localName, String name) throws SAXException {
+			if (startReadRowIndex > currRowIndex) {
+				return;
+			}
+			String thisStr = null;
+			if ("v".equals(name) || "t".equals(name)) {
+				switch (nextDataType) {
+				case BOOL:
+					char first = value.charAt(0);
+					thisStr = first == '0' ? "FALSE" : "TRUE";
+					break;
+				case FORMULA:
+					thisStr = value.toString();
+					break;
+				case INLINESTR:
+					XSSFRichTextString rtsi = new XSSFRichTextString(value.toString());
+					thisStr = rtsi.toString();
+					break;
+				case SSTINDEX:
+					String sstIndex = value.toString();
+					try {
+						int idx = Integer.parseInt(sstIndex);
+						XSSFRichTextString rtss = new XSSFRichTextString(sharedStringsTable.getEntryAt(idx));
+						thisStr = rtss.toString();
+					} catch (NumberFormatException ex) {
+					}
+					break;
+				case NUMBER:
+					String n = value.toString();
+					if (this.formatString != null) {
+						thisStr = formatter.formatRawCellContents(Double.parseDouble(n), this.formatIndex, this.formatString);
+					} else {
+						thisStr = n;
+					}
+					break;
+				default:
+					break;
+				}
+				handler.handleXlsxCell(currRowIndex, currColumnIndex, thisStr);
+			}
+		}
+
+		public void characters(char[] ch, int start, int length) throws SAXException {
+			if (vIsOpen)
+				value.append(ch, start, length);
+		}
+
+		@Override
+		public void startDocument() throws SAXException {
+			handler.begin(sheetIndex, sheetName);
+		}
+
+		@Override
+		public void endDocument() throws SAXException {
+			handler.endRow(currRowIndex);
+			handler.end(sheetIndex, sheetName);
+		}
+
+	}
 }

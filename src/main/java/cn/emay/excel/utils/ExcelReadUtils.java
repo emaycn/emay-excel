@@ -3,7 +3,6 @@ package cn.emay.excel.utils;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 
@@ -46,26 +45,19 @@ public class ExcelReadUtils {
 	/**
 	 * 读取日期类型数据
 	 * 
-	 * @param formatIndex
-	 *            单元格类型
 	 * @param value
 	 *            数据
 	 * @param format
 	 *            日期格式
 	 * @return [可能为空]
 	 */
-	public static Date readDate(int formatIndex, String value, String express) {
+	public static Date readDate(String value, String express) {
 		if (value == null) {
 			return null;
 		}
 		Date date = null;
 		try {
-			if (formatIndex == 49 || formatIndex == -1) {
-				date = ExcelUtils.parseDate(value, express);
-			} else {
-				Double d1 = Double.valueOf(value);
-				date = HSSFDateUtil.getJavaDate(d1);
-			}
+			date = ExcelUtils.parseDate(value, express);
 		} catch (Exception e) {
 		}
 		return date;
@@ -278,22 +270,6 @@ public class ExcelReadUtils {
 	 * @return [可能为空]
 	 */
 	public static String readString(String value) {
-		if(value == null || "".equals(value)) {
-			return value;
-		}
-		// 先进行整数解析，如果匹配上了，直接返回
-		try {
-			Long lon = Long.valueOf(value);
-			return lon.toString();
-		} catch (Exception e) {
-		}
-		// 再进行小数解析，如果匹配上了，直接返回
-		try {
-			Double dou = Double.valueOf(value);
-			return dou.toString();
-		} catch (Exception e) {
-		}
-		// 如果没有解析成数字，放回原值
 		return value;
 	}
 
@@ -350,7 +326,7 @@ public class ExcelReadUtils {
 		if (value.equalsIgnoreCase("true")) {
 			return true;
 		} else if (value.equalsIgnoreCase("false")) {
-			return true;
+			return false;
 		} else {
 			return value.charAt(0) == '0' ? false : true;
 		}
@@ -361,8 +337,6 @@ public class ExcelReadUtils {
 	 * 
 	 * @param fieldClass
 	 *            读取的数据类型
-	 * @param formatIndex
-	 *            Excel数据类型
 	 * @param value
 	 *            数据
 	 * @param express
@@ -370,7 +344,7 @@ public class ExcelReadUtils {
 	 * @return 数据(读取日期时：如果是String写入，则根据此表达式进行格式化读取；读取Double、BigDecimal时，是保留的小数点后数字个数；)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T read(Class<T> fieldClass, int formatIndex, String value, String express) {
+	public static <T> T read(Class<T> fieldClass, String value, String express) {
 		if (value == null) {
 			return null;
 		}
@@ -384,7 +358,7 @@ public class ExcelReadUtils {
 		} else if (fieldClass.isAssignableFrom(BigDecimal.class)) {
 			obj = readBigDecimal(value, ExcelUtils.parserExpressToInt(express));
 		} else if (fieldClass.isAssignableFrom(Date.class)) {
-			obj = readDate(formatIndex, value, express);
+			obj = readDate(value, express);
 		} else if (fieldClass.isAssignableFrom(Boolean.class) || fieldClass.isAssignableFrom(boolean.class)) {
 			obj = readBoolean(value);
 		} else if (fieldClass.isAssignableFrom(String.class)) {
