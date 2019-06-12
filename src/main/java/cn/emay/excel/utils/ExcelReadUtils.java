@@ -3,8 +3,17 @@ package cn.emay.excel.utils;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.ExcelNumberFormat;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * 读工具类
@@ -13,6 +22,11 @@ import org.apache.poi.ss.usermodel.CellType;
  *
  */
 public class ExcelReadUtils {
+
+	/**
+	 * WORKBOOK模式浮点数格式
+	 */
+	private static HSSFDataFormatter HDF = new HSSFDataFormatter();
 
 	/**
 	 * 读取日期类型数据
@@ -35,6 +49,32 @@ public class ExcelReadUtils {
 			break;
 		case STRING:
 			date = ExcelUtils.parseDate(cell.getStringCellValue(), express);
+			break;
+		case FORMULA:
+			FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+			CellValue value = evaluator.evaluate(cell);
+			if (value == null) {
+				break;
+			}
+			switch (value.getCellTypeEnum()) {
+			case NUMERIC:
+				Workbook wb = cell.getSheet().getWorkbook();
+				boolean date1904 = false;
+				if (wb.getClass().getName().equals(SXSSFWorkbook.class.getName())) {
+					date1904 = ((SXSSFWorkbook) wb).getXSSFWorkbook().isDate1904();
+				} else if (wb.getClass().getName().equals(XSSFWorkbook.class.getName())) {
+					date1904 = ((XSSFWorkbook) wb).isDate1904();
+				} else if (wb.getClass().getName().equals(HSSFWorkbook.class.getName())) {
+					date1904 = ((HSSFWorkbook) wb).getInternalWorkbook().isUsing1904DateWindowing();
+				}
+				date = DateUtil.getJavaDate(value.getNumberValue(), date1904);
+				break;
+			case STRING:
+				date = ExcelUtils.parseDate(value.getStringValue(), express);
+				break;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;
@@ -191,6 +231,29 @@ public class ExcelReadUtils {
 		case BOOLEAN:
 			d2 = new BigDecimal(cell.getBooleanCellValue() ? 1d : 0d);
 			break;
+		case FORMULA:
+			FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+			CellValue value = evaluator.evaluate(cell);
+			if (value == null) {
+				break;
+			}
+			switch (value.getCellTypeEnum()) {
+			case NUMERIC:
+				d2 = new BigDecimal(value.getNumberValue());
+				break;
+			case STRING:
+				try {
+					d2 = new BigDecimal(value.getStringValue());
+				} catch (Exception e) {
+				}
+				break;
+			case BOOLEAN:
+				d2 = new BigDecimal(value.getBooleanValue() ? 1d : 0d);
+				break;
+			default:
+				break;
+			}
+			break;
 		default:
 			break;
 		}
@@ -240,13 +303,7 @@ public class ExcelReadUtils {
 		String str = null;
 		switch (ctype) {
 		case NUMERIC:
-			double d = cell.getNumericCellValue();
-			long dd = new Double(d).longValue();
-			if (d == new Double(dd).doubleValue()) {
-				str = String.valueOf(dd);
-			} else {
-				str = String.valueOf(d);
-			}
+			str = HDF.formatCellValue(cell);
 			break;
 		case STRING:
 			str = cell.getStringCellValue();
@@ -254,6 +311,28 @@ public class ExcelReadUtils {
 		case BOOLEAN:
 			boolean bol = cell.getBooleanCellValue();
 			str = String.valueOf(bol);
+			break;
+		case FORMULA:
+			FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+			CellValue value = evaluator.evaluate(cell);
+			if (value == null) {
+				break;
+			}
+			switch (value.getCellTypeEnum()) {
+			case NUMERIC:
+				ExcelNumberFormat numFmt = ExcelNumberFormat.from(cell, null);
+				str = HDF.formatRawCellContents(value.getNumberValue(), numFmt.getIdx(), numFmt.getFormat());
+				break;
+			case STRING:
+				str = value.getStringValue();
+				break;
+			case BOOLEAN:
+				boolean bol1 = value.getBooleanValue();
+				str = String.valueOf(bol1);
+				break;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;
@@ -305,6 +384,36 @@ public class ExcelReadUtils {
 			break;
 		case BOOLEAN:
 			bol = cell.getBooleanCellValue();
+			break;
+		case FORMULA:
+			FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+			CellValue value = evaluator.evaluate(cell);
+			if (value == null) {
+				break;
+			}
+			switch (value.getCellTypeEnum()) {
+			case NUMERIC:
+				double dv = value.getNumberValue();
+				if (dv == 1) {
+					bol = true;
+				} else if (dv == 0) {
+					bol = false;
+				}
+				break;
+			case STRING:
+				String d12 = value.getStringValue();
+				if ("true".equalsIgnoreCase(d12) || "1".equalsIgnoreCase(d12)) {
+					bol = true;
+				} else if ("false".equalsIgnoreCase(d12) || "0".equalsIgnoreCase(d12)) {
+					bol = false;
+				}
+				break;
+			case BOOLEAN:
+				bol = value.getBooleanValue();
+				break;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;

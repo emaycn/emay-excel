@@ -27,6 +27,11 @@ import org.xml.sax.helpers.DefaultHandler;
 import cn.emay.excel.read.reader.SheetReader;
 import cn.emay.excel.utils.Word26Decimal;
 
+/**
+ * 
+ * @author Frank
+ *
+ */
 public class XlsxReader extends BaseReader {
 
 	@Override
@@ -129,7 +134,30 @@ public class XlsxReader extends BaseReader {
 	 *
 	 */
 	public static enum DataType {
-		BOOL, ERROR, FORMULA, INLINESTR, SSTINDEX, NUMBER,
+		/**
+		 * 布尔
+		 */
+		BOOL,
+		/**
+		 * 错误
+		 */
+		ERROR,
+		/**
+		 * 公式
+		 */
+		FORMULA,
+		/**
+		 * String
+		 */
+		INLINESTR,
+		/**
+		 * String
+		 */
+		SSTINDEX,
+		/**
+		 * 数字，包括日期
+		 */
+		NUMBER,
 	}
 
 	/**
@@ -177,6 +205,7 @@ public class XlsxReader extends BaseReader {
 			this.sheetName = sheetName;
 		}
 
+		@Override
 		public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
 			if ("row".equals(name)) {
 				currRowIndex = Integer.valueOf(attributes.getValue("r")) - 1;
@@ -211,28 +240,30 @@ public class XlsxReader extends BaseReader {
 				this.formatString = null;
 				String cellType = attributes.getValue("t");
 				String cellStyleStr = attributes.getValue("s");
-				if ("b".equals(cellType))
+				if ("b".equals(cellType)) {
 					nextDataType = DataType.BOOL;
-				else if ("e".equals(cellType))
+				} else if ("e".equals(cellType)) {
 					nextDataType = DataType.ERROR;
-				else if ("inlineStr".equals(cellType))
+				} else if ("inlineStr".equals(cellType)) {
 					nextDataType = DataType.INLINESTR;
-				else if ("s".equals(cellType))
+				} else if ("s".equals(cellType)) {
 					nextDataType = DataType.SSTINDEX;
-				else if ("str".equals(cellType))
+				} else if ("str".equals(cellType)) {
 					nextDataType = DataType.FORMULA;
-				else if (cellStyleStr != null) {
+				} else if (cellStyleStr != null) {
 					int styleIndex = Integer.parseInt(cellStyleStr);
 					XSSFCellStyle style = stylesTable.getStyleAt(styleIndex);
 					this.formatIndex = style.getDataFormat();
 					this.formatString = style.getDataFormatString();
-					if (this.formatString == null)
+					if (this.formatString == null) {
 						this.formatString = BuiltinFormats.getBuiltinFormat(this.formatIndex);
+					}
 				}
 			}
 
 		}
 
+		@Override
 		public void endElement(String uri, String localName, String name) throws SAXException {
 			if (startReadRowIndex > currRowIndex) {
 				return;
@@ -275,9 +306,11 @@ public class XlsxReader extends BaseReader {
 			}
 		}
 
+		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
-			if (vIsOpen)
+			if (vIsOpen) {
 				value.append(ch, start, length);
+			}
 		}
 
 		@Override

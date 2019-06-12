@@ -14,11 +14,11 @@ import cn.emay.excel.read.ExcelReader;
 public class TestMe {
 
 	public static void main(String[] args) {
-		List<Excc> es = ExcelReader.readFirstSheet("C:\\Users\\Frank\\Desktop\\test.xlsx", Excc.class);
+		List<Excc> es = ExcelReader.readFirstSheet("C:\\Users\\Frank\\Desktop\\test.xls", Excc.class);
 		es.stream().forEach(ex -> System.out.println(ex.toString()));
 	}
 
-	@ExcelSheet(readDataStartRowIndex = 1)
+	@ExcelSheet(readDataStartRowIndex = 0)
 	public static class Excc {
 
 		@ExcelColumn(index = 0, title = "年龄")
