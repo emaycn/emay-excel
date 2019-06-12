@@ -80,3 +80,8 @@ ExcelReader.readFirstSheetWithReader(excelPath, new DataReader<Person>() {
 3. 如果需要单元格颜色，xls中的GREY_25_PERCENT、GREY_40_PERCENT两个颜色将被替换;
 4. schema方式仅支持String,Long,Integer,Double,Boolean,Date,BigDecimal类型;
 5. 写入Excel的null值，读取String类型，会读出"";
+
+## 3 后续规划
+
+1. XLS读取也采用底层方法，减小内存占用；
+2. 写Excel采用xml方式，减小内存占用；
