@@ -25,7 +25,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import cn.emay.excel.read.reader.SheetReader;
-import cn.emay.excel.utils.Word26Decimal;
 
 /**
  * 
@@ -233,7 +232,7 @@ public class XlsxReader extends BaseReader {
 			} else if ("c".equals(name)) {
 				String coordinate = attributes.getValue("r");
 				String columnIndexStr = coordinate.replaceAll("\\d+", "");
-				currColumnIndex = (int) Word26Decimal.decode(columnIndexStr);
+				currColumnIndex = (int) decode(columnIndexStr);
 
 				this.nextDataType = DataType.NUMBER;
 				this.formatIndex = -1;
@@ -322,6 +321,21 @@ public class XlsxReader extends BaseReader {
 		public void endDocument() throws SAXException {
 			handler.endRow(currRowIndex);
 			handler.end(sheetIndex, sheetName);
+		}
+		
+		/**
+		 * 解码
+		 * 
+		 * @param inhex
+		 * @return
+		 */
+		protected int decode(String inhex) {
+			int column = -1;
+			for (int i = 0; i < inhex.length(); ++i) {
+				int c = inhex.charAt(i);
+				column = (column + 1) * 26 + c - 'A';
+			}
+			return column;
 		}
 
 	}

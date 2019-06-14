@@ -14,7 +14,7 @@ import cn.emay.excel.read.ExcelReader;
 public class TestMe {
 
 	public static void main(String[] args) {
-		List<Excc> es = ExcelReader.readFirstSheet("C:\\Users\\Frank\\Desktop\\test.xls", Excc.class);
+		List<Excc> es = ExcelReader.readFirstSheet("C:\\Users\\Frank\\Desktop\\test.xlsx", Excc.class);
 		es.stream().forEach(ex -> System.out.println(ex.toString()));
 	}
 
