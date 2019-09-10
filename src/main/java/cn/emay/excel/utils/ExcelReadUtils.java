@@ -458,19 +458,19 @@ public class ExcelReadUtils {
 			return null;
 		}
 		Object obj = null;
-		if (fieldClass.isAssignableFrom(int.class) || fieldClass.isAssignableFrom(Integer.class)) {
+		if (int.class.isAssignableFrom(fieldClass) || Integer.class.isAssignableFrom(fieldClass)) {
 			obj = readInteger(value);
-		} else if (fieldClass.isAssignableFrom(Double.class) || fieldClass.isAssignableFrom(double.class)) {
+		} else if (Double.class.isAssignableFrom(fieldClass) || double.class.isAssignableFrom(fieldClass)) {
 			obj = readDouble(value, ExcelUtils.parserExpressToInt(express));
-		} else if (fieldClass.isAssignableFrom(Long.class) || fieldClass.isAssignableFrom(long.class)) {
+		} else if (Long.class.isAssignableFrom(fieldClass) || long.class.isAssignableFrom(fieldClass)) {
 			obj = readLong(value);
-		} else if (fieldClass.isAssignableFrom(BigDecimal.class)) {
+		} else if (BigDecimal.class.isAssignableFrom(fieldClass)) {
 			obj = readBigDecimal(value, ExcelUtils.parserExpressToInt(express));
-		} else if (fieldClass.isAssignableFrom(Date.class)) {
+		} else if (Date.class.isAssignableFrom(fieldClass)) {
 			obj = readDate(value, express);
-		} else if (fieldClass.isAssignableFrom(Boolean.class) || fieldClass.isAssignableFrom(boolean.class)) {
+		} else if (Boolean.class.isAssignableFrom(fieldClass) || boolean.class.isAssignableFrom(fieldClass)) {
 			obj = readBoolean(value);
-		} else if (fieldClass.isAssignableFrom(String.class)) {
+		} else if (String.class.isAssignableFrom(fieldClass)) {
 			obj = readString(value);
 		}
 		return (T) obj;
@@ -493,19 +493,19 @@ public class ExcelReadUtils {
 			return null;
 		}
 		Object obj = null;
-		if (fieldClass.isAssignableFrom(int.class) || fieldClass.isAssignableFrom(Integer.class)) {
+		if (int.class.isAssignableFrom(fieldClass) || Integer.class.isAssignableFrom(fieldClass)) {
 			obj = readInteger(cell);
-		} else if (fieldClass.isAssignableFrom(Double.class) || fieldClass.isAssignableFrom(double.class)) {
+		} else if (Double.class.isAssignableFrom(fieldClass) || double.class.isAssignableFrom(fieldClass)) {
 			obj = readDouble(cell, ExcelUtils.parserExpressToInt(express));
-		} else if (fieldClass.isAssignableFrom(Long.class) || fieldClass.isAssignableFrom(long.class)) {
+		} else if (Long.class.isAssignableFrom(fieldClass) || long.class.isAssignableFrom(fieldClass)) {
 			obj = readLong(cell);
-		} else if (fieldClass.isAssignableFrom(BigDecimal.class)) {
+		} else if (BigDecimal.class.isAssignableFrom(fieldClass)) {
 			obj = readBigDecimal(cell, ExcelUtils.parserExpressToInt(express));
-		} else if (fieldClass.isAssignableFrom(Date.class)) {
+		} else if (Date.class.isAssignableFrom(fieldClass)) {
 			obj = readDate(cell, express);
-		} else if (fieldClass.isAssignableFrom(Boolean.class) || fieldClass.isAssignableFrom(boolean.class)) {
+		} else if (Boolean.class.isAssignableFrom(fieldClass) || boolean.class.isAssignableFrom(fieldClass)) {
 			obj = readBoolean(cell);
-		} else if (fieldClass.isAssignableFrom(String.class)) {
+		} else if (String.class.isAssignableFrom(fieldClass)) {
 			obj = readString(cell);
 		}
 		return (T) obj;

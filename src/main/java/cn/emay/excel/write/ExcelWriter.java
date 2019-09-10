@@ -365,7 +365,7 @@ public class ExcelWriter {
 			if (workbook != null) {
 				try {
 					workbook.close();
-					if (workbook.getClass().isAssignableFrom(SXSSFWorkbook.class)) {
+					if (SXSSFWorkbook.class.isAssignableFrom(workbook.getClass())) {
 						((SXSSFWorkbook) workbook).dispose();
 					}
 				} catch (IOException e) {
@@ -403,7 +403,7 @@ public class ExcelWriter {
 			} else {
 				sheet = workbook.createSheet();
 			}
-			if (sheet.getClass().isAssignableFrom(SXSSFSheet.class)) {
+			if (SXSSFSheet.class.isAssignableFrom(sheet.getClass())) {
 				((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
 			}
 			write(index, sheet, handler);
@@ -556,7 +556,7 @@ public class ExcelWriter {
 			if (workbook != null) {
 				try {
 					workbook.close();
-					if (workbook.getClass().isAssignableFrom(SXSSFWorkbook.class)) {
+					if (SXSSFWorkbook.class.isAssignableFrom(workbook.getClass())) {
 						((SXSSFWorkbook) workbook).dispose();
 					}
 				} catch (IOException e) {

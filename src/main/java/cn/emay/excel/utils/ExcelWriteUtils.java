@@ -197,27 +197,27 @@ public class ExcelWriteUtils {
 		if (data == null) {
 			return;
 		}
-		if (data.getClass().isAssignableFrom(int.class)) {
+		if (int.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeInt(cell, (int) data);
-		} else if (data.getClass().isAssignableFrom(Integer.class)) {
+		} else if (Integer.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeInt(cell, (Integer) data);
-		} else if (data.getClass().isAssignableFrom(double.class)) {
+		} else if (double.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeDouble(cell, (double) data, ExcelUtils.parserExpressToInt(express));
-		} else if (data.getClass().isAssignableFrom(Double.class)) {
+		} else if (Double.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeDouble(cell, (Double) data, ExcelUtils.parserExpressToInt(express));
-		} else if (data.getClass().isAssignableFrom(long.class)) {
+		} else if (long.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeLong(cell, (long) data);
-		} else if (data.getClass().isAssignableFrom(Long.class)) {
+		} else if (Long.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeLong(cell, (Long) data);
-		} else if (data.getClass().isAssignableFrom(BigDecimal.class)) {
+		} else if (BigDecimal.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeBigDecimal(cell, (BigDecimal) data, ExcelUtils.parserExpressToInt(express));
-		} else if (data.getClass().isAssignableFrom(Date.class)) {
+		} else if (Date.class.isAssignableFrom(data.getClass())) { 
 			ExcelWriteUtils.writeDate(cell, (Date) data, express);
-		} else if (data.getClass().isAssignableFrom(boolean.class)) {
+		} else if (boolean.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeBoolean(cell, (boolean) data);
-		} else if (data.getClass().isAssignableFrom(Boolean.class)) {
+		} else if (Boolean.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeBoolean(cell, (Boolean) data);
-		} else if (data.getClass().isAssignableFrom(String.class)) {
+		} else if (String.class.isAssignableFrom(data.getClass())) {
 			ExcelWriteUtils.writeString(cell, (String) data);
 		}
 	}

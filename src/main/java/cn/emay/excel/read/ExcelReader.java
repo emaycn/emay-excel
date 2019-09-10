@@ -623,7 +623,7 @@ public class ExcelReader {
 			if (workbook != null) {
 				try {
 					workbook.close();
-					if (workbook.getClass().isAssignableFrom(SXSSFWorkbook.class)) {
+					if (SXSSFWorkbook.class.isAssignableFrom(workbook.getClass())) {
 						((SXSSFWorkbook) workbook).dispose();
 					}
 				} catch (IOException e) {
