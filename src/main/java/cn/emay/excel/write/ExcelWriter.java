@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -432,12 +433,13 @@ public class ExcelWriter {
 		}
 		handler.begin(sheetIndex);
 		int rowIndex = 0;
+		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		while (handler.hasRow(rowIndex)) {
 			Row row = sheet.createRow(rowIndex);
 			handler.beginRow(rowIndex);
 			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
 				Cell cell = row.createCell(columnIndex);
-				cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
+				cell.setCellStyle(cellStyle);
 				handler.writeCell(cell, rowIndex, columnIndex);
 			}
 			handler.endRow(rowIndex);
