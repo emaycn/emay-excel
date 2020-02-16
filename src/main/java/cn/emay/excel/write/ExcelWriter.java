@@ -15,7 +15,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -404,9 +403,9 @@ public class ExcelWriter {
 			} else {
 				sheet = workbook.createSheet();
 			}
-			if (SXSSFSheet.class.isAssignableFrom(sheet.getClass())) {
-				((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
-			}
+			// if (SXSSFSheet.class.isAssignableFrom(sheet.getClass())) {
+			// ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
+			// }
 			write(index, sheet, handler);
 		}
 	}
