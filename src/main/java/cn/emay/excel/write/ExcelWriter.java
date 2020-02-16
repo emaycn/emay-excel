@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -302,6 +303,66 @@ public class ExcelWriter {
 	}
 
 	/**
+	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
+	 * 
+	 * @param excelPath
+	 *            Excel写入的全路径
+	 * @param cacheNumber
+	 *            在内存中的缓存数据行数(XLSX适用)【小于100直接使用先写入内存再全部刷到磁盘的方式;大于100则采用当内存中超过CacheNumber条后，刷新到磁盘的方式】
+	 * @param handlers
+	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
+	 */
+	public static void writeBigData(String excelPath, int cacheNumber, SheetWriter... handlers) {
+		if (excelPath == null) {
+			throw new IllegalArgumentException("excelPath is null");
+		}
+		if (handlers == null) {
+			throw new IllegalArgumentException("handlers is null");
+		}
+		if (handlers.length == 0) {
+			throw new IllegalArgumentException("handlers is empty");
+		}
+		ExcelVersion version = null;
+		if (excelPath.endsWith(ExcelVersion.XLS.getSuffix())) {
+			version = ExcelVersion.XLS;
+		} else if (excelPath.endsWith(ExcelVersion.XLSX.getSuffix())) {
+			version = ExcelVersion.XLSX;
+		} else {
+			throw new IllegalArgumentException("is not excel file  : " + excelPath);
+		}
+		File file = new File(excelPath);
+		if (file.exists()) {
+			throw new IllegalArgumentException("excelPath[" + excelPath + "]  is exists");
+		}
+		boolean error = false;
+		FileOutputStream fos = null;
+		File parent = file.getParentFile();
+		try {
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+			fos = new FileOutputStream(excelPath);
+			writeBigData(fos, version, cacheNumber, handlers);
+		} catch (Exception e) {
+			error = true;
+			throw new IllegalArgumentException(e);
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				} finally {
+					if (error) {
+						file.delete();
+						parent.delete();
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * 把Excel写入输出流<br/>
 	 * 
 	 * @param os
@@ -376,6 +437,66 @@ public class ExcelWriter {
 	}
 
 	/**
+	 * 把Excel写入输出流<br/>
+	 * 
+	 * @param os
+	 *            输出流
+	 * @param version
+	 *            版本
+	 * @param cacheNumber
+	 *            在内存中的缓存数据行数(XLSX适用)【小于100直接使用先写入内存再全部刷到磁盘的方式;大于100则采用当内存中超过CacheNumber条后，刷新到磁盘的方式】
+	 * @param handlers
+	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
+	 */
+	public static void writeBigData(OutputStream os, ExcelVersion version, int cacheNumber, SheetWriter... handlers) {
+		if (os == null) {
+			throw new IllegalArgumentException("OutputStream is null");
+		}
+		if (version == null) {
+			throw new IllegalArgumentException("ExcelVersion is null");
+		}
+		if (handlers == null) {
+			throw new IllegalArgumentException("handlers is null");
+		}
+		if (handlers.length == 0) {
+			throw new IllegalArgumentException("handlers is empty");
+		}
+		Workbook workbook = null;
+		switch (version) {
+		case XLS:
+			workbook = new HSSFWorkbook();
+			break;
+		case XLSX:
+			if (cacheNumber >= DEFAULT_CACHE_NUM) {
+				workbook = new SXSSFWorkbook(cacheNumber);
+			} else {
+				workbook = new XSSFWorkbook();
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("version is error");
+		}
+		try {
+			writeBigData(workbook, handlers);
+			workbook.write(os);
+			os.flush();
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+					if (SXSSFWorkbook.class.isAssignableFrom(workbook.getClass())) {
+						((SXSSFWorkbook) workbook).dispose();
+					}
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+		}
+	}
+
+	/**
 	 * 往Workbook写入数据
 	 * 
 	 * @param workbook
@@ -403,9 +524,41 @@ public class ExcelWriter {
 			} else {
 				sheet = workbook.createSheet();
 			}
-			// if (SXSSFSheet.class.isAssignableFrom(sheet.getClass())) {
-			// ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
-			// }
+			if (SXSSFSheet.class.isAssignableFrom(sheet.getClass())) {
+				((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
+			}
+			write(index, sheet, handler);
+		}
+	}
+
+	/**
+	 * 往Workbook写入数据
+	 * 
+	 * @param workbook
+	 *            工作簿
+	 * @param handlers
+	 *            Execl写入处理器集合[按照顺序处理Sheet,SheetWriteHandler实例不要重用]
+	 * @return
+	 */
+	public static void writeBigData(Workbook workbook, SheetWriter... handlers) {
+		if (workbook == null) {
+			throw new IllegalArgumentException("workbook is null");
+		}
+		if (handlers == null || handlers.length == 0) {
+			throw new IllegalArgumentException("handlers is null or empty");
+		}
+		for (int index = 0; index < handlers.length; index++) {
+			SheetWriter handler = handlers[index];
+			Sheet sheet = null;
+			if (handler == null) {
+				workbook.createSheet();
+				continue;
+			}
+			if (handler.getSheetName() != null && !"".equals(handler.getSheetName())) {
+				sheet = workbook.createSheet(handler.getSheetName());
+			} else {
+				sheet = workbook.createSheet();
+			}
 			write(index, sheet, handler);
 		}
 	}
@@ -432,13 +585,49 @@ public class ExcelWriter {
 		}
 		handler.begin(sheetIndex);
 		int rowIndex = 0;
-		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		while (handler.hasRow(rowIndex)) {
 			Row row = sheet.createRow(rowIndex);
 			handler.beginRow(rowIndex);
 			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
 				Cell cell = row.createCell(columnIndex);
-				cell.setCellStyle(cellStyle);
+				cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
+				handler.writeCell(cell, rowIndex, columnIndex);
+			}
+			handler.endRow(rowIndex);
+			rowIndex++;
+		}
+		handler.end(sheetIndex);
+	}
+
+	/**
+	 * 写入Sheet
+	 * 
+	 * @param sheetIndex
+	 *            sheet 序号
+	 * @param sheet
+	 *            表
+	 * @param handler
+	 *            处理器
+	 */
+	public static void writeBigData(int sheetIndex, Sheet sheet, SheetWriter handler) {
+		if (sheetIndex < 0) {
+			throw new IllegalArgumentException("sheetIndex must bigger than -1");
+		}
+		if (sheet == null) {
+			throw new IllegalArgumentException("sheet is null");
+		}
+		if (handler == null) {
+			throw new IllegalArgumentException("handler is null");
+		}
+		handler.begin(sheetIndex);
+		int rowIndex = 0;
+		CellStyle createCellStyle = sheet.getWorkbook().createCellStyle();
+		while (handler.hasRow(rowIndex)) {
+			Row row = sheet.createRow(rowIndex);
+			handler.beginRow(rowIndex);
+			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
+				Cell cell = row.createCell(columnIndex);
+				cell.setCellStyle(createCellStyle);
 				handler.writeCell(cell, rowIndex, columnIndex);
 			}
 			handler.endRow(rowIndex);
