@@ -559,7 +559,7 @@ public class ExcelWriter {
 			} else {
 				sheet = workbook.createSheet();
 			}
-			write(index, sheet, handler);
+			writeBigData(index, sheet, handler);
 		}
 	}
 
