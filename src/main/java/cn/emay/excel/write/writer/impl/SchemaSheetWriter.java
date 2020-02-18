@@ -27,6 +27,7 @@ import cn.emay.excel.common.schema.base.SheetWriteSchemaParams;
 import cn.emay.excel.utils.ExcelWriteUtils;
 import cn.emay.excel.write.data.SheetDataGetter;
 import cn.emay.excel.write.writer.SheetWriter;
+import cn.emay.utils.clazz.ClassUtils;
 
 /**
  * 
@@ -108,7 +109,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 		this.isContentNeedColor = !Arrays.equals(writeSchemaParams.getContentRgbColor(), DEFAULT_RGB_COLOR);
 		this.isTitleNeedColor = !Arrays.equals(writeSchemaParams.getTitleRgbColor(), DEFAULT_RGB_COLOR);
 		Set<Integer> columnIndexs = new HashSet<>();
-		Field[] fields = writeData.getDataClass().getDeclaredFields();
+		Field[] fields = ClassUtils.getAllFields(writeData.getDataClass());
 		for (Field field : fields) {
 			field.setAccessible(true);
 			ColumnSchema csma = schema.getExcelColumnByFieldName(field.getName());
@@ -133,6 +134,12 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 		return writeSchemaParams.getWriteSheetName();
 	}
 
+
+	@Override
+	public boolean isAutoWidth() {
+		return writeSchemaParams.isAutoWidth();
+	}
+	
 	@Override
 	public boolean hasRow(int rowIndex) {
 		if (writeSchemaParams.isWriteTile()) {
@@ -191,7 +198,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 			try {
 				Object obj = field.get(curr);
 				ExcelWriteUtils.write(cell, obj, columnSchema.getExpress());
-				if (writeSchemaParams.isAutoWidth()) {
+				if (this.isAutoWidth()) {
 					if (!boolean.class.isAssignableFrom(field.getType()) && !Boolean.class.isAssignableFrom(field.getType())) {
 						length = String.valueOf(obj).getBytes().length;
 					} else {
@@ -204,7 +211,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 				throw new IllegalArgumentException("sheet(" + writeSchemaParams.getWriteSheetName() + ")[" + sheetIndex + "]-row[" + rowIndex + "]-column[" + columnIndex + "] get value from [" + field.getName() + "] and write error", e);
 			}
 		}
-		if (writeSchemaParams.isAutoWidth()) {
+		if (this.isAutoWidth()) {
 			length *= 256;
 			Integer maxlength = maxWidth.get(columnIndex);
 			if (maxlength == null || maxlength.intValue() < length) {
@@ -220,7 +227,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 
 	@Override
 	public void end(int sheetIndex) {
-		if (writeSchemaParams.isAutoWidth()) {
+		if (this.isAutoWidth()) {
 			for (Integer columnIndex : maxWidth.keySet()) {
 				Integer width = maxWidth.get(columnIndex);
 				if (width != null) {
@@ -244,7 +251,7 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 		CellStyle style = cell.getCellStyle();
 		if (rowIndex == 0) {
 			sheet = cell.getSheet();
-			if (writeSchemaParams.isAutoWidth()) {
+			if (this.isAutoWidth()) {
 				sheet.autoSizeColumn(columnIndex);
 			}
 			if (HSSFWorkbook.class.isAssignableFrom(cell.getSheet().getWorkbook().getClass())) {
@@ -291,5 +298,6 @@ public class SchemaSheetWriter<D> implements SheetWriter {
 		}
 		cell.setCellStyle(style);
 	}
+
 
 }

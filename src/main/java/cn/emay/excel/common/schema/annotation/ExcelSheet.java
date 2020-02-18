@@ -94,7 +94,7 @@ public @interface ExcelSheet {
 	 * 
 	 * @return
 	 */
-	boolean isAutoWidth() default true;
+	boolean isAutoWidth() default false;
 
 	/**
 	 * 表头背景色<br/>

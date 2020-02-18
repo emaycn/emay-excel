@@ -37,7 +37,8 @@ import cn.emay.excel.utils.ExcelUtils;
  *
  */
 public class ExcelReader {
-
+	
+	
 	/**
 	 * 从Excel文件中读取第一个表格<br/>
 	 * dataClass实现了@ExcelSheet注解,其字段实现了@ExcelColumn注解
@@ -394,6 +395,23 @@ public class ExcelReader {
 		ExcelPathInfo parser = ExcelUtils.parserPath(excelPath);
 		readBySheetNames(parser.getInputStream(), parser.getVersion(), readersByName);
 
+	}
+	
+	/**
+	 * 从文件中读取Excel表格第一个sheet页<br/>
+	 * 
+	 * @param is
+	 *            输入流
+	 * @param version
+	 *            版本
+	 * @param reader
+	 *            Sheet读取处理器[处理器实例不可复用]
+	 */
+	public static <D>List<D> readFirstSheet(InputStream is, ExcelVersion version, Class<D> dataClass) {
+		ReturnSchemaDataReader<D> dataHandler = new ReturnSchemaDataReader<D>(dataClass);
+		SchemaSheetReader<D> handler = new SchemaSheetReader<D>(new SheetSchema(dataHandler.getDataClass()), dataHandler);
+		readFirstSheet(is, version, handler);
+		return dataHandler.getResult();
 	}
 
 	/**

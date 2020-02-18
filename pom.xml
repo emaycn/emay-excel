@@ -5,7 +5,7 @@
 	<groupId>cn.emay</groupId>
 	<artifactId>emay-excel</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.7</version>
+	<version>1.0.8</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,6 +23,12 @@
 	</properties>
 
 	<dependencies>
+		<!-- utils -->
+		<dependency>
+			<groupId>cn.emay</groupId>
+			<artifactId>emay-utils</artifactId>
+			<version>1.0.8</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jsp-api</artifactId>

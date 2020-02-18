@@ -103,4 +103,9 @@ public class NormalWriter implements SheetWriter {
 
 	}
 
+	@Override
+	public boolean isAutoWidth() {
+		return true;
+	}
+
 }

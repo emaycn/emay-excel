@@ -6,6 +6,7 @@ import java.util.Map;
 
 import cn.emay.excel.common.schema.annotation.ExcelColumn;
 import cn.emay.excel.common.schema.annotation.ExcelSheet;
+import cn.emay.utils.clazz.ClassUtils;
 
 /**
  * 表定义
@@ -42,7 +43,7 @@ public class SheetSchema {
 		if (dataClass.isAnnotationPresent(ExcelSheet.class)) {
 			ExcelSheet sheet = dataClass.getAnnotation(ExcelSheet.class);
 			this.setSheetSchemaParams(sheet);
-			Field[] fields = dataClass.getDeclaredFields();
+			Field[] fields = ClassUtils.getAllFields(dataClass);
 			for (Field field : fields) {
 				if (field.isAnnotationPresent(ExcelColumn.class)) {
 					this.setColumnSchema(field.getName(), field.getAnnotation(ExcelColumn.class));

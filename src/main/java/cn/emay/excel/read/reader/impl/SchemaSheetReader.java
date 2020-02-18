@@ -16,6 +16,7 @@ import cn.emay.excel.read.handler.SheetDataHandler;
 import cn.emay.excel.read.reader.SheetReader;
 import cn.emay.excel.utils.ExcelReadUtils;
 import cn.emay.excel.utils.ExcelUtils;
+import cn.emay.utils.clazz.ClassUtils;
 
 /**
  * 定义方式读取
@@ -96,7 +97,7 @@ public class SchemaSheetReader<D> implements SheetReader {
 		this.readByIndex = readSchemaParams.readByIndex();
 		Set<String> titles = new HashSet<>();
 		Set<Integer> indexs = new HashSet<>();
-		Field[] fieldArray = dataReader.getDataClass().getDeclaredFields();
+		Field[] fieldArray = ClassUtils.getAllFields(dataReader.getDataClass());
 		for (Field field : fieldArray) {
 			field.setAccessible(true);
 			ColumnSchema csma = schema.getExcelColumnByFieldName(field.getName());
