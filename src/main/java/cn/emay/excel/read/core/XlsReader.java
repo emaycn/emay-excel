@@ -1,5 +1,7 @@
 package cn.emay.excel.read.core;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -216,6 +218,39 @@ public class XlsReader extends BaseReader {
 			handler.endRow(j);
 		}
 		handler.end(index, name);
+	}
+
+	@Override
+	public void read(File file, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
+		if (file == null) {
+			throw new IllegalArgumentException("File is null");
+		}
+		Workbook workbook = null;
+		FileInputStream is = null;
+		try {
+			is = new FileInputStream(file);
+			workbook = new HSSFWorkbook(is);
+			readWorkbook(workbook, handlersByIndex, handlersByName);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+				System.gc();
+			}
+			try {
+				if (null != is) {
+					is.close();
+				}
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+
 	}
 
 }

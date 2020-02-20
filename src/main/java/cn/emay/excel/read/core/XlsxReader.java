@@ -1,5 +1,6 @@
 package cn.emay.excel.read.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -322,7 +323,7 @@ public class XlsxReader extends BaseReader {
 			handler.endRow(currRowIndex);
 			handler.end(sheetIndex, sheetName);
 		}
-		
+
 		/**
 		 * 解码
 		 * 
@@ -336,6 +337,75 @@ public class XlsxReader extends BaseReader {
 				column = (column + 1) * 26 + c - 'A';
 			}
 			return column;
+		}
+
+	}
+
+	@Override
+	public void read(File file, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
+		if (file == null) {
+			throw new IllegalArgumentException("InputStream is null");
+		}
+		OPCPackage opcPackage = null;
+		try {
+			opcPackage = OPCPackage.open(file);
+			XSSFReader xssfReader = new XSSFReader(opcPackage);
+			StylesTable stylesTable = xssfReader.getStylesTable();
+			SharedStringsTable sst = xssfReader.getSharedStringsTable();
+			XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
+			int sheetIndex = 0;
+			while (iter.hasNext()) {
+				InputStream sheet = null;
+				try {
+					sheet = iter.next();
+					String sheetName = iter.getSheetName();
+					SheetReader readHander = null;
+					if (handlersByIndex != null) {
+						readHander = handlersByIndex.get(sheetIndex);
+					}
+					if (readHander == null && handlersByName != null) {
+						readHander = handlersByName.get(sheetName);
+					}
+					if (readHander == null) {
+						continue;
+					}
+					InputSource sheetSource = new InputSource(sheet);
+					SAXParserFactory saxFactory = SAXParserFactory.newInstance();
+					SAXParser saxParser = saxFactory.newSAXParser();
+					XMLReader sheetParser = saxParser.getXMLReader();
+					XlsxSheetHandler mxHandler = new XlsxSheetHandler(stylesTable, sst, sheetIndex, sheetName, readHander);
+					sheetParser.setContentHandler(mxHandler);
+					sheetParser.parse(sheetSource);
+				} catch (XlsxStopReadException e) {
+					// 本sheet停止读取
+					continue;
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				} catch (SAXException e) {
+					throw new IllegalArgumentException(e);
+				} catch (ParserConfigurationException e) {
+					throw new IllegalArgumentException(e);
+				} finally {
+					sheetIndex++;
+					if (sheet != null) {
+						sheet.close();
+					}
+				}
+			}
+		} catch (InvalidFormatException e) {
+			throw new IllegalArgumentException(e);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} catch (OpenXML4JException e) {
+			throw new IllegalArgumentException(e);
+		} finally {
+			if (opcPackage != null) {
+				try {
+					opcPackage.close();
+				} catch (IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
 		}
 
 	}
