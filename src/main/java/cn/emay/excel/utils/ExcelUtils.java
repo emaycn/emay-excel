@@ -1,8 +1,6 @@
 package cn.emay.excel.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -73,9 +71,8 @@ public class ExcelUtils {
 	 *            Exce路径
 	 * @return
 	 */
-	public static ExcelPathInfo parserPath(String excelPath) {
+	public static ExcelVersion parserPath(String excelPath) {
 		ExcelVersion version = null;
-		FileInputStream fis = null;
 		if (excelPath == null) {
 			throw new IllegalArgumentException("excelPath is null");
 		}
@@ -89,12 +86,7 @@ public class ExcelUtils {
 		} else {
 			throw new IllegalArgumentException("excelPath[" + excelPath + "] is not excel");
 		}
-		try {
-			fis = new FileInputStream(excelPath);
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		}
-		return new ExcelPathInfo(version, fis);
+		return version;
 	}
 
 }

@@ -39,9 +39,39 @@ public class XlsxReader extends BaseReader {
 		if (is == null) {
 			throw new IllegalArgumentException("InputStream is null");
 		}
-		OPCPackage opcPackage = null;
 		try {
-			opcPackage = OPCPackage.open(is);
+			OPCPackage opcPackage = OPCPackage.open(is);
+			readByOPCPackage(opcPackage, handlersByIndex, handlersByName);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+
+	}
+
+	@Override
+	public void read(File file, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
+		if (file == null) {
+			throw new IllegalArgumentException("file is null");
+		}
+		try {
+			OPCPackage opcPackage = OPCPackage.open(file);
+			readByOPCPackage(opcPackage, handlersByIndex, handlersByName);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	private void readByOPCPackage(OPCPackage opcPackage, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
+		if (opcPackage == null) {
+			throw new IllegalArgumentException("opcPackage is null");
+		}
+		try {
 			XSSFReader xssfReader = new XSSFReader(opcPackage);
 			StylesTable stylesTable = xssfReader.getStylesTable();
 			SharedStringsTable sst = xssfReader.getSharedStringsTable();
@@ -98,11 +128,6 @@ public class XlsxReader extends BaseReader {
 				} catch (IOException e) {
 					throw new IllegalArgumentException(e);
 				}
-			}
-			try {
-				is.close();
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e);
 			}
 		}
 	}
@@ -341,72 +366,4 @@ public class XlsxReader extends BaseReader {
 
 	}
 
-	@Override
-	public void read(File file, Map<Integer, SheetReader> handlersByIndex, Map<String, SheetReader> handlersByName) {
-		if (file == null) {
-			throw new IllegalArgumentException("InputStream is null");
-		}
-		OPCPackage opcPackage = null;
-		try {
-			opcPackage = OPCPackage.open(file);
-			XSSFReader xssfReader = new XSSFReader(opcPackage);
-			StylesTable stylesTable = xssfReader.getStylesTable();
-			SharedStringsTable sst = xssfReader.getSharedStringsTable();
-			XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
-			int sheetIndex = 0;
-			while (iter.hasNext()) {
-				InputStream sheet = null;
-				try {
-					sheet = iter.next();
-					String sheetName = iter.getSheetName();
-					SheetReader readHander = null;
-					if (handlersByIndex != null) {
-						readHander = handlersByIndex.get(sheetIndex);
-					}
-					if (readHander == null && handlersByName != null) {
-						readHander = handlersByName.get(sheetName);
-					}
-					if (readHander == null) {
-						continue;
-					}
-					InputSource sheetSource = new InputSource(sheet);
-					SAXParserFactory saxFactory = SAXParserFactory.newInstance();
-					SAXParser saxParser = saxFactory.newSAXParser();
-					XMLReader sheetParser = saxParser.getXMLReader();
-					XlsxSheetHandler mxHandler = new XlsxSheetHandler(stylesTable, sst, sheetIndex, sheetName, readHander);
-					sheetParser.setContentHandler(mxHandler);
-					sheetParser.parse(sheetSource);
-				} catch (XlsxStopReadException e) {
-					// 本sheet停止读取
-					continue;
-				} catch (IOException e) {
-					throw new IllegalArgumentException(e);
-				} catch (SAXException e) {
-					throw new IllegalArgumentException(e);
-				} catch (ParserConfigurationException e) {
-					throw new IllegalArgumentException(e);
-				} finally {
-					sheetIndex++;
-					if (sheet != null) {
-						sheet.close();
-					}
-				}
-			}
-		} catch (InvalidFormatException e) {
-			throw new IllegalArgumentException(e);
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		} catch (OpenXML4JException e) {
-			throw new IllegalArgumentException(e);
-		} finally {
-			if (opcPackage != null) {
-				try {
-					opcPackage.close();
-				} catch (IOException e) {
-					throw new IllegalArgumentException(e);
-				}
-			}
-		}
-
-	}
 }
