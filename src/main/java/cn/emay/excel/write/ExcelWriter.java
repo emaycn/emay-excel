@@ -504,7 +504,7 @@ public class ExcelWriter {
 		while (handler.hasRow(rowIndex)) {
 			Row row = sheet.createRow(rowIndex);
 			handler.beginRow(rowIndex);
-			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex() - 1; columnIndex++) {
+			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
 				Cell cell = row.createCell(columnIndex);
 				if (rowIndex == 0) {
 					cell.setCellStyle(titleStyles[columnIndex]);
