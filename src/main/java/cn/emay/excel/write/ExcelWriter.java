@@ -241,7 +241,7 @@ public class ExcelWriter {
 	public static void write(String excelPath, SheetWriter... handlers) {
 		write(excelPath, DEFAULT_CACHE_NUM, handlers);
 	}
-	
+
 	/**
 	 * 把Excel写入文件【根据后缀（.xls,.xlsx）自动适配】
 	 * 
@@ -254,7 +254,7 @@ public class ExcelWriter {
 	 */
 	@Deprecated
 	public static void writeBigData(String excelPath, int cacheNumber, SheetWriter... handlers) {
-		write( excelPath,  cacheNumber,  handlers);
+		write(excelPath, cacheNumber, handlers);
 	}
 
 	/**
@@ -330,7 +330,7 @@ public class ExcelWriter {
 	public static void write(OutputStream os, ExcelVersion version, SheetWriter... handlers) {
 		write(os, version, DEFAULT_CACHE_NUM, handlers);
 	}
-	
+
 	/**
 	 * 把Excel写入输出流<br/>
 	 * 
@@ -345,7 +345,7 @@ public class ExcelWriter {
 	 */
 	@Deprecated
 	public static void writeBigData(OutputStream os, ExcelVersion version, int cacheNumber, SheetWriter... handlers) {
-		write( os,version, cacheNumber,  handlers) ;
+		write(os, version, cacheNumber, handlers);
 	}
 
 	/**
@@ -421,7 +421,7 @@ public class ExcelWriter {
 	public static void writeBigData(Workbook workbook, SheetWriter... handlers) {
 		write(workbook, handlers);
 	}
-	
+
 	/**
 	 * 往Workbook写入数据
 	 * 
@@ -456,7 +456,7 @@ public class ExcelWriter {
 			write(index, sheet, handler);
 		}
 	}
-	
+
 	/**
 	 * 写入Sheet
 	 * 
@@ -469,7 +469,7 @@ public class ExcelWriter {
 	 */
 	@Deprecated
 	public static void writeBigData(int sheetIndex, Sheet sheet, SheetWriter handler) {
-		write(sheetIndex,sheet,handler);
+		write(sheetIndex, sheet, handler);
 	}
 
 	/**
@@ -493,22 +493,22 @@ public class ExcelWriter {
 			throw new IllegalArgumentException("handler is null");
 		}
 		// excel仅支持64000个样式，所以仅创建列数*2个样式，标题行单独使用，内容行共用
-		CellStyle[] titleStyles = new CellStyle[handler.getMaxColumnIndex() + 1];  
-		CellStyle[] contentStyles = new CellStyle[handler.getMaxColumnIndex() + 1];  
+		handler.begin(sheetIndex);
+		CellStyle[] titleStyles = new CellStyle[handler.getMaxColumnIndex() + 1];
+		CellStyle[] contentStyles = new CellStyle[handler.getMaxColumnIndex() + 1];
 		for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
 			titleStyles[columnIndex] = sheet.getWorkbook().createCellStyle();
 			contentStyles[columnIndex] = sheet.getWorkbook().createCellStyle();
 		}
-		handler.begin(sheetIndex);
 		int rowIndex = 0;
 		while (handler.hasRow(rowIndex)) {
 			Row row = sheet.createRow(rowIndex);
 			handler.beginRow(rowIndex);
-			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex(); columnIndex++) {
+			for (int columnIndex = 0; columnIndex <= handler.getMaxColumnIndex() - 1; columnIndex++) {
 				Cell cell = row.createCell(columnIndex);
-				if(rowIndex == 0) {
+				if (rowIndex == 0) {
 					cell.setCellStyle(titleStyles[columnIndex]);
-				}else {
+				} else {
 					cell.setCellStyle(contentStyles[columnIndex]);
 				}
 				handler.writeCell(cell, rowIndex, columnIndex);
