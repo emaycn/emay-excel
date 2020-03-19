@@ -349,6 +349,22 @@ public class ExcelReadUtils {
 	 * @return [可能为空]
 	 */
 	public static String readString(String value) {
+		if(value == null || "".equals(value)) {
+			return value;
+		}
+		// 先进行整数解析，如果匹配上了，直接返回
+		try {
+			Long lon = Long.valueOf(value);
+			return lon.toString();
+		} catch (Exception e) {
+		}
+		// 再进行小数解析，如果匹配上了，直接返回
+		try {
+			Double dou = Double.valueOf(value);
+			return dou.toString();
+		} catch (Exception e) {
+		}
+		// 如果没有解析成数字，放回原值
 		return value;
 	}
 
