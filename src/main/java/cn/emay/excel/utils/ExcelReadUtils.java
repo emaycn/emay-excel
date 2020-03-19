@@ -352,6 +352,9 @@ public class ExcelReadUtils {
 		if(value == null || "".equals(value)) {
 			return value;
 		}
+		if(value.startsWith("0")) {
+			return value;
+		}
 		// 先进行整数解析，如果匹配上了，直接返回
 		try {
 			Long lon = Long.valueOf(value);
