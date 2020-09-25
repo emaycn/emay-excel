@@ -4,18 +4,17 @@ import cn.emay.excel.common.schema.base.SheetSchema;
 
 /**
  * 基于定义的表格数据处理器
- * 
- * @author Frank
  *
  * @param <D>
+ * @author Frank
  */
 public interface SchemaSheetDataHandler<D> extends SheetDataHandler<D> {
 
-	/**
-	 * 获取定义
-	 * 
-	 * @return
-	 */
-	public SheetSchema getSheetSchema();
+    /**
+     * 获取定义
+     *
+     * @return 定义
+     */
+    SheetSchema getSheetSchema();
 
 }
